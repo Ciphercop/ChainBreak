@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ChainBreak Graph</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <style>
+      body {
+        margin: 0;
+        font-family: Inter, Arial, sans-serif;
+        background: #0b0f17;
+        color: #e8edf3;
+      }
+      header {
+        padding: 12px 16px;
+        border-bottom: 1px solid #1e2838;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      button,
+      select,
+      input {
+        background: #111827;
+        color: #e5e7eb;
+        border: 1px solid #374151;
+        border-radius: 6px;
+        padding: 8px 10px;
+      }
+      #container {
+        display: flex;
+        height: calc(100vh - 60px);
+      }
+      #left {
+        width: 360px;
+        border-right: 1px solid #1e2838;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      #right {
+        flex: 1;
+        position: relative;
+      }
+      #sigma-container {
+        position: absolute;
+        inset: 0;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .list {
+        height: 44vh;
+        overflow: auto;
+        border: 1px solid #1e2838;
+        border-radius: 6px;
+        padding: 6px;
+      }
+      .log {
+        height: 22vh;
+        overflow: auto;
+        border: 1px solid #1e2838;
+        border-radius: 6px;
+        padding: 6px;
+        background: #0f1623;
+      }
+      .badge {
+        display: inline-block;
+        padding: 2px 6px;
+        border: 1px solid #334155;
+        border-radius: 999px;
+        font-size: 12px;
+      }
+      .hint {
+        font-size: 12px;
+        color: #94a3b8;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div style="font-weight: 700">ChainBreak</div>
+      <a class="badge" href="/api/status" target="_blank">Status</a>
+    </header>
+    <div id="container">
+      <div id="left">
+        <input id="address" placeholder="Bitcoin address" />
+        <div class="row">
+          <input id="tx_limit" type="number" min="1" max="200" value="50" />
+          <button id="fetchBtn">Fetch & Save Graph</button>
+        </div>
+        <div class="row">
+          <button id="refreshBtn">Refresh List</button>
+          <button id="runLouvainBtn">Run Louvain Algorithm</button>
+        </div>
+        <div class="hint">
+          Click a node to set it as seed. Louvain can run without seed.
+        </div>
+        <div class="list" id="files"></div>
+        <div class="log" id="log"></div>
+      </div>
+      <div id="right">
+        <div id="sigma-container"></div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/graphology@0.25.4/dist/graphology.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/graphology-layout-forceatlas2@0.10.1/build/graphology-layout-forceatlas2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/graphology-layout@0.7.2/build/graphology-layout.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/graphology-utils@2.5.1/build/graphology-utils.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/graphology-communities-louvain@2.0.0/build/graphology-communities-louvain.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sigma@2.4.0/build/sigma.min.js"></script>
+    <script>
+      const $ = (s) => document.querySelector(s);
+      const log = (m) => {
+        $("#log").textContent += "\n" + new Date().toISOString() + " " + m;
+        $("#log").scrollTop = $("#log").scrollHeight;
+      };
+      let renderer = null,
+        graph = null,
+        selectedNode = null;
+      const palette = [
+        "#ef4444",
+        "#3b82f6",
+        "#22c55e",
+        "#eab308",
+        "#a855f7",
+        "#06b6d4",
+        "#f97316",
+        "#10b981",
+        "#f43f5e",
+        "#8b5cf6",
+        "#14b8a6",
+        "#f59e0b",
+      ];
+
+      async function listFiles() {
+        const r = await fetch("/api/graph/list");
+        const j = await r.json();
+        const el = $("#files");
+        el.innerHTML = "";
+        if (j.success) {
+          j.files.forEach((name) => {
+            const b = document.createElement("button");
+            b.textContent = name;
+            b.onclick = () => loadGraph(name);
+            el.appendChild(b);
+            el.appendChild(document.createElement("br"));
+          });
+          log("listed " + j.files.length + " graphs");
+        } else {
+          log("list error " + j.error);
+        }
+      }
+
+      async function fetchGraph() {
+        const address = $("#address").value.trim();
+        const tx_limit = parseInt($("#tx_limit").value || "50", 10);
+        if (!address) {
+          log("address required");
+          return;
+        }
+        const r = await fetch("/api/graph/address", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address, tx_limit }),
+        });
+        const j = await r.json();
+        if (j.success) {
+          log("saved " + j.file);
+          await listFiles();
+        } else {
+          log("fetch error " + j.error);
+        }
+      }
+
+      async function loadGraph(name) {
+        const r = await fetch(
+          "/api/graph/get?name=" + encodeURIComponent(name)
+        );
+        const graphJson = await r.json();
+        const G = new graphology.Graph({ multi: false, type: "directed" });
+        const nodes = graphJson.nodes || [];
+        const edges = graphJson.edges || [];
+        nodes.forEach((n, i) => {
+          const x = Math.cos((2 * Math.PI * i) / Math.max(1, nodes.length));
+          const y = Math.sin((2 * Math.PI * i) / Math.max(1, nodes.length));
+          G.addNode(n.id, {
+            label: n.label || n.id,
+            color: n.type === "transaction" ? "#60a5fa" : "#34d399",
+            x,
+            y,
+            size: n.type === "transaction" ? 2 : 3,
+            type: n.type || "address",
+          });
+        });
+        edges.forEach((e, i) => {
+          const id = e.id || `${e.source}->${e.target}-${i}`;
+          if (G.hasNode(e.source) && G.hasNode(e.target) && !G.hasEdge(id)) {
+            G.addEdgeWithKey(id, e.source, e.target, {
+              label: e.type || "",
+              size: 1,
+              color: e.type === "SENT_FROM" ? "#ef4444" : "#3b82f6",
+            });
+          }
+        });
+        graph = G;
+        const container = document.getElementById("sigma-container");
+        if (renderer) renderer.kill();
+        renderer = new sigma.Sigma(graph, container, {
+          renderLabels: true,
+          labelSize: 12,
+          minNodeSize: 1.5,
+          maxNodeSize: 6,
+          minEdgeSize: 0.5,
+          maxEdgeSize: 4,
+        });
+        renderer.on("clickNode", ({ node }) => {
+          selectedNode = node;
+          log("selected node " + node);
+        });
+        graphologyLayoutForceatlas2.assign(graph, {
+          iterations: 200,
+          settings: { scalingRatio: 10, gravity: 0.5, slowDown: 2 },
+        });
+        renderer.refresh();
+        log("rendered " + nodes.length + " nodes " + edges.length + " edges");
+      }
+
+      function runLouvain() {
+        if (!graph) {
+          log("no graph loaded");
+          return;
+        }
+        const result = graphologyCommunitiesLouvain.louvain(graph, {
+          rng: Math.random,
+          resolution: 1,
+        });
+        const commToColor = {};
+        let idx = 0;
+        Object.keys(result).forEach((node) => {
+          const c = result[node];
+          if (!(c in commToColor))
+            commToColor[c] = palette[idx++ % palette.length];
+        });
+        graph.forEachNode((n, attr) => {
+          const c = result[n];
+          graph.setNodeAttribute(n, "color", commToColor[c] || "#93c5fd");
+        });
+        renderer.refresh();
+        log("louvain communities=" + new Set(Object.values(result)).size);
+      }
+
+      $("#fetchBtn").onclick = fetchGraph;
+      $("#refreshBtn").onclick = listFiles;
+      $("#runLouvainBtn").onclick = runLouvain;
+      listFiles();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,38 @@
+# Ignore all log files
+*.log
+
+# Ignore temporary files and directories
+*~
+*.tmp
+temp/
+temp/*
+
+# Ignore build artifacts
+build/
+dist/
+*.class
+*.jar
+
+# Ignore IDE-specific files
+.idea/
+.vscode/
+
+# Ignore test output
+target/
+out/
+test-output/
+
+# Ignore sensitive configuration files
+config/local.json
+config/secrets.json
+
+# Ignore virtual environment
+venv/
+env/
+*.vemv/
+
+*node_modules/
+# Ignore cursorignore file itself to avoid infinite recursion
+cursorignore
+
+ __pycache__/

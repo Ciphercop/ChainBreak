@@ -1,0 +1,16 @@
+# Core dependencies
+neo4j
+blockcypher
+pandas
+numpy
+scikit-learn
+networkx
+matplotlib
+flask
+flask-cors
+pyyaml
+
+# Additional utilities
+requests
+python-dotenv
+gephistreamer
