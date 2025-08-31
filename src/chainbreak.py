@@ -5,14 +5,13 @@ Integrates all components for comprehensive blockchain analysis
 
 import logging
 import yaml
-import os
 from typing import Dict, Any, List, Optional
 from pathlib import Path
 
-from .data_ingestion import BlockchainDataIngestor
+from .data_ingestion import BaseDataIngestor, Neo4jDataIngestor, JSONDataIngestor
 from .anomaly_detection import (
-    LayeringDetector, 
-    SmurfingDetector, 
+    LayeringDetector,
+    SmurfingDetector,
     VolumeAnomalyDetector,
     TemporalAnomalyDetector
 )
@@ -24,29 +23,28 @@ logger = logging.getLogger(__name__)
 
 class ChainBreak:
     """Main ChainBreak application class integrating all components"""
-    
+
     def __init__(self, config_path: str = "config.yaml"):
         """Initialize ChainBreak with configuration"""
         self.config = self._load_config(config_path)
         self._setup_logging()
-        
-        # Initialize Neo4j connection
+
+        # Initialize Neo4j connection parameters
         neo4j_config = self.config.get('neo4j', {})
-        # Use environment variables if available (for Docker), otherwise use config
-        self.neo4j_uri = os.environ.get('NEO4J_URI', neo4j_config.get('uri', 'bolt://localhost:7687'))
-        self.neo4j_user = os.environ.get('NEO4J_USERNAME', neo4j_config.get('username', 'neo4j'))
-        self.neo4j_password = os.environ.get('NEO4J_PASSWORD', neo4j_config.get('password', 'password'))
-        
-        # Debug logging
-        logger.info(f"Neo4j URI: {self.neo4j_uri}")
-        logger.info(f"Neo4j User: {self.neo4j_user}")
-        logger.info(f"Neo4j Password: {'*' * len(self.neo4j_password) if self.neo4j_password else 'None'}")
-        
-        # Initialize components
+        self.neo4j_uri = neo4j_config.get('uri', 'bolt://localhost:7687')
+        self.neo4j_user = neo4j_config.get('username', 'neo4j')
+        self.neo4j_password = neo4j_config.get('password', 'password')
+
+        # Backend mode tracking
+        self.backend_mode = "unknown"
+        self.use_json_backend = self.config.get('use_json_backend', False)
+
+        # Initialize components with graceful fallback
         self._initialize_components()
-        
-        logger.info("ChainBreak initialized successfully")
-    
+
+        logger.info(
+            f"ChainBreak initialized successfully in {self.backend_mode} mode")
+
     def _load_config(self, config_path: str) -> Dict[str, Any]:
         """Load configuration from YAML file"""
         try:
@@ -55,10 +53,11 @@ class ChainBreak:
             logger.info(f"Configuration loaded from {config_path}")
             return config
         except Exception as e:
-            logger.warning(f"Error loading config from {config_path}: {str(e)}")
+            logger.warning(
+                f"Error loading config from {config_path}: {str(e)}")
             logger.info("Using default configuration")
             return self._get_default_config()
-    
+
     def _get_default_config(self) -> Dict[str, Any]:
         """Get default configuration"""
         return {
@@ -81,9 +80,10 @@ class ChainBreak:
                 'frequency_weight': 0.2,
                 'layering_weight': 0.3,
                 'smurfing_weight': 0.2
-            }
+            },
+            'use_json_backend': False
         }
-    
+
     def _setup_logging(self):
         """Setup logging configuration"""
         logging.basicConfig(
@@ -94,128 +94,122 @@ class ChainBreak:
                 logging.StreamHandler()
             ]
         )
-    
+
     def _initialize_components(self):
-        """Initialize all ChainBreak components"""
+        """Initialize all ChainBreak components with graceful fallback"""
+        if self.use_json_backend:
+            logger.info("Forced JSON backend mode - skipping Neo4j connection")
+            self._initialize_json_backend()
+            return
+
         try:
-            # Check if Neo4j should be skipped
-            skip_neo4j = os.environ.get('CHAINBREAK_NO_NEO4J', '0') == '1'
-            
-            if skip_neo4j:
-                logger.warning("Neo4j initialization skipped due to CHAINBREAK_NO_NEO4J environment variable")
-                self.data_ingestor = None
-                self.layering_detector = None
-                self.smurfing_detector = None
-                self.volume_detector = None
-                self.temporal_detector = None
-                self.risk_scorer = None
-                self.visualizer = None
-                self.gephi_exporter = None
-                self.chart_generator = None
-                logger.info("Components initialized in limited mode (no Neo4j)")
-                return
-            
-            # Initialize data ingestor
-            self.data_ingestor = BlockchainDataIngestor(
-                self.neo4j_uri, 
-                self.neo4j_user, 
-                self.neo4j_password
-            )
-            
-            # Initialize anomaly detectors
-            self.layering_detector = LayeringDetector(self.data_ingestor.driver)
-            self.smurfing_detector = SmurfingDetector(self.data_ingestor.driver)
-            self.volume_detector = VolumeAnomalyDetector(self.data_ingestor.driver)
-            self.temporal_detector = TemporalAnomalyDetector(self.data_ingestor.driver)
-            
-            # Initialize risk scorer
-            self.risk_scorer = RiskScorer(self.data_ingestor.driver, self.config)
-            
-            # Initialize visualization components
-            self.visualizer = NetworkVisualizer(self.data_ingestor.driver)
-            self.gephi_exporter = GephiExporter(self.data_ingestor.driver)
-            self.chart_generator = ChartGenerator(self.data_ingestor.driver)
-            
-            logger.info("All components initialized successfully")
-            
+            logger.info("Attempting to connect to Neo4j...")
+            self._initialize_neo4j_backend()
+            self.backend_mode = "neo4j"
+            logger.info("Successfully initialized Neo4j backend")
+
         except Exception as e:
-            logger.error(f"Error initializing components: {str(e)}")
-            # Don't raise the exception, allow the system to run in limited mode
-            logger.warning("System will run in limited mode due to initialization errors")
-            self.data_ingestor = None
-            self.layering_detector = None
-            self.smurfing_detector = None
-            self.volume_detector = None
-            self.temporal_detector = None
-            self.risk_scorer = None
-            self.visualizer = None
-            self.gephi_exporter = None
-            self.chart_generator = None
-    
-    def analyze_address(self, address: str, blockchain: str = 'btc', 
-                       generate_visualizations: bool = True) -> Dict[str, Any]:
+            logger.warning(f"Neo4j connection failed: {str(e)}")
+            logger.info("Falling back to JSON backend mode")
+            self._initialize_json_backend()
+            self.backend_mode = "json"
+
+    def _initialize_neo4j_backend(self):
+        """Initialize Neo4j-based backend"""
+        self.data_ingestor = Neo4jDataIngestor(
+            self.neo4j_uri,
+            self.neo4j_user,
+            self.neo4j_password
+        )
+
+        # Initialize anomaly detectors with Neo4j driver
+        self.layering_detector = LayeringDetector(self.data_ingestor.driver)
+        self.smurfing_detector = SmurfingDetector(self.data_ingestor.driver)
+        self.volume_detector = VolumeAnomalyDetector(self.data_ingestor.driver)
+        self.temporal_detector = TemporalAnomalyDetector(
+            self.data_ingestor.driver)
+
+        # Initialize risk scorer with Neo4j driver
+        self.risk_scorer = RiskScorer(self.data_ingestor.driver, self.config)
+
+        # Initialize visualization components with Neo4j driver
+        self.visualizer = NetworkVisualizer(self.data_ingestor.driver)
+        self.gephi_exporter = GephiExporter(self.data_ingestor.driver)
+        self.chart_generator = ChartGenerator(self.data_ingestor.driver)
+
+        logger.info("All Neo4j components initialized successfully")
+
+    def _initialize_json_backend(self):
+        """Initialize JSON-based backend"""
+        logger.info("Initializing JSON backend components...")
+
+        self.data_ingestor = JSONDataIngestor()
+
+        # Initialize lightweight components for JSON mode
+        self.layering_detector = None
+        self.smurfing_detector = None
+        self.volume_detector = None
+        self.temporal_detector = None
+
+        self.risk_scorer = None
+        self.visualizer = None
+        self.gephi_exporter = None
+        self.chart_generator = None
+
+        logger.info(
+            "JSON backend components initialized (limited functionality)")
+
+    def get_backend_mode(self) -> str:
+        """Get current backend mode"""
+        return self.backend_mode
+
+    def is_neo4j_available(self) -> bool:
+        """Check if Neo4j backend is available"""
+        return self.backend_mode == "neo4j" and self.data_ingestor.is_operational()
+
+    def analyze_address(self, address: str, blockchain: str = 'btc',
+                        generate_visualizations: bool = True) -> Dict[str, Any]:
         """Comprehensive analysis of a single address"""
         try:
-            logger.info(f"Starting comprehensive analysis for address: {address}")
-            
+            logger.info(
+                f"Starting comprehensive analysis for address: {address}")
+            logger.info(f"Using backend mode: {self.backend_mode}")
+
             # Step 1: Ingest data
             logger.info("Step 1: Ingesting blockchain data...")
-            ingestion_success = self.data_ingestor.ingest_address_data(address, blockchain)
-            
+            ingestion_success = self.data_ingestor.ingest_address_data(
+                address, blockchain)
+
             if not ingestion_success:
                 logger.warning(f"Data ingestion failed for address {address}")
                 return self._get_analysis_error_result(address, "Data ingestion failed")
-            
-            # Step 2: Detect anomalies
-            logger.info("Step 2: Detecting anomalies...")
-            
-            # Layering detection
-            layering_patterns = self.layering_detector.detect_layering_patterns(address)
-            complex_layering = self.layering_detector.detect_complex_layering(address)
-            
-            # Smurfing detection
-            smurfing_patterns = self.smurfing_detector.detect_smurfing_patterns()
-            structured_smurfing = self.smurfing_detector.detect_structured_smurfing(address)
-            
-            # Volume anomalies
-            volume_anomalies = self.volume_detector.detect_volume_anomalies()
-            value_pattern_anomalies = self.volume_detector.detect_value_pattern_anomalies(address)
-            
-            # Temporal anomalies
-            timing_anomalies = self.temporal_detector.detect_timing_anomalies(address)
-            
-            # Step 3: Calculate risk score
-            logger.info("Step 3: Calculating risk score...")
-            risk_score = self.risk_scorer.calculate_address_risk_score(address)
-            
-            # Step 4: Generate visualizations if requested
-            visualizations = {}
-            if generate_visualizations:
-                logger.info("Step 4: Generating visualizations...")
-                try:
-                    # Network visualization
-                    network_graph = self.visualizer.visualize_address_network(address)
-                    visualizations['network_graph'] = network_graph
-                    
-                    # Transaction timeline
-                    self.visualizer.create_transaction_timeline(address)
-                    visualizations['timeline_created'] = True
-                    
-                    # Transaction volume chart
-                    self.chart_generator.create_transaction_volume_chart(address)
-                    visualizations['volume_chart_created'] = True
-                    
-                except Exception as e:
-                    logger.warning(f"Error generating visualizations: {str(e)}")
-                    visualizations['error'] = str(e)
-            
-            # Compile results
-            analysis_results = {
-                'address': address,
-                'blockchain': blockchain,
-                'analysis_timestamp': self._get_current_timestamp(),
-                'ingestion_success': ingestion_success,
-                'anomalies': {
+
+            # Step 2: Detect anomalies (only if Neo4j backend available)
+            anomalies = {}
+            if self.is_neo4j_available():
+                logger.info("Step 2: Detecting anomalies...")
+
+                # Layering detection
+                layering_patterns = self.layering_detector.detect_layering_patterns(
+                    address)
+                complex_layering = self.layering_detector.detect_complex_layering(
+                    address)
+
+                # Smurfing detection
+                smurfing_patterns = self.smurfing_detector.detect_smurfing_patterns()
+                structured_smurfing = self.smurfing_detector.detect_structured_smurfing(
+                    address)
+
+                # Volume anomalies
+                volume_anomalies = self.volume_detector.detect_volume_anomalies()
+                value_pattern_anomalies = self.volume_detector.detect_value_pattern_anomalies(
+                    address)
+
+                # Temporal anomalies
+                timing_anomalies = self.temporal_detector.detect_timing_anomalies(
+                    address)
+
+                anomalies = {
                     'layering_patterns': layering_patterns,
                     'complex_layering': complex_layering,
                     'smurfing_patterns': smurfing_patterns,
@@ -223,123 +217,191 @@ class ChainBreak:
                     'volume_anomalies': volume_anomalies,
                     'value_pattern_anomalies': value_pattern_anomalies,
                     'timing_anomalies': timing_anomalies
-                },
+                }
+            else:
+                logger.info(
+                    "Step 2: Skipping anomaly detection (JSON backend mode)")
+                anomalies = {
+                    'layering_patterns': [],
+                    'complex_layering': [],
+                    'smurfing_patterns': [],
+                    'structured_smurfing': [],
+                    'volume_anomalies': [],
+                    'value_pattern_anomalies': [],
+                    'timing_anomalies': []
+                }
+
+            # Step 3: Calculate risk score (only if Neo4j backend available)
+            risk_score = None
+            if self.is_neo4j_available():
+                logger.info("Step 3: Calculating risk score...")
+                risk_score = self.risk_scorer.calculate_address_risk_score(
+                    address)
+            else:
+                logger.info(
+                    "Step 3: Skipping risk scoring (JSON backend mode)")
+                risk_score = {
+                    'overall_score': 0,
+                    'risk_level': 'UNKNOWN',
+                    'factors': {'message': 'Risk scoring not available in JSON mode'}
+                }
+
+            # Step 4: Generate visualizations if requested and available
+            visualizations = {}
+            if generate_visualizations and self.is_neo4j_available():
+                logger.info("Step 4: Generating visualizations...")
+                try:
+                    # Network visualization
+                    network_graph = self.visualizer.visualize_address_network(
+                        address)
+                    visualizations['network_graph'] = network_graph
+
+                    # Transaction timeline
+                    self.visualizer.create_transaction_timeline(address)
+                    visualizations['timeline_created'] = True
+
+                    # Risk heatmap
+                    self.visualizer.create_risk_heatmap(address)
+                    visualizations['risk_heatmap_created'] = True
+
+                except Exception as e:
+                    logger.warning(
+                        f"Visualization generation failed: {str(e)}")
+                    visualizations['error'] = str(e)
+            else:
+                logger.info(
+                    "Step 4: Skipping visualizations (JSON backend mode or not requested)")
+                visualizations['message'] = 'Visualizations not available in JSON mode'
+
+            # Step 5: Compile results
+            logger.info("Step 5: Compiling analysis results...")
+
+            analysis_results = {
+                'address': address,
+                'blockchain': blockchain,
+                'backend_mode': self.backend_mode,
+                'analysis_timestamp': self._get_current_timestamp(),
+                'ingestion_success': ingestion_success,
+                'anomalies': anomalies,
                 'risk_score': risk_score,
                 'visualizations': visualizations,
-                'summary': self._generate_analysis_summary(
-                    layering_patterns, smurfing_patterns, volume_anomalies, risk_score
-                )
+                'summary': self._generate_analysis_summary(address, anomalies, risk_score)
             }
-            
-            logger.info(f"Analysis completed successfully for address {address}")
+
+            logger.info(
+                f"Analysis completed successfully for address: {address}")
             return analysis_results
-            
+
         except Exception as e:
-            logger.error(f"Error analyzing address {address}: {str(e)}")
+            logger.error(f"Analysis failed for address {address}: {str(e)}")
             return self._get_analysis_error_result(address, str(e))
-    
+
     def analyze_multiple_addresses(self, addresses: List[str], blockchain: str = 'btc') -> Dict[str, Any]:
-        """Analyze multiple addresses and provide comparative analysis"""
+        """Analyze multiple addresses"""
         try:
-            logger.info(f"Starting analysis of {len(addresses)} addresses")
-            
-            individual_results = []
+            logger.info(
+                f"Starting batch analysis for {len(addresses)} addresses")
+
+            results = {}
+            successful_analyses = 0
+            failed_analyses = 0
+
             for address in addresses:
-                logger.info(f"Analyzing address: {address}")
-                result = self.analyze_address(address, blockchain, generate_visualizations=False)
-                individual_results.append(result)
-            
-            # Generate comparative visualizations
-            risk_scores = [result['risk_score']['total_risk_score'] for result in individual_results]
-            self.visualizer.create_risk_heatmap(addresses, risk_scores)
-            
-            # Generate risk summary
-            risk_summary = self.risk_scorer.get_risk_summary(addresses)
-            self.chart_generator.create_risk_distribution_chart(risk_summary)
-            
-            # Compile comparative results
-            comparative_results = {
-                'total_addresses': len(addresses),
+                try:
+                    result = self.analyze_address(
+                        address, blockchain, generate_visualizations=False)
+                    if 'error' not in result:
+                        results[address] = result
+                        successful_analyses += 1
+                    else:
+                        results[address] = {'error': result['error']}
+                        failed_analyses += 1
+                except Exception as e:
+                    logger.error(
+                        f"Analysis failed for address {address}: {str(e)}")
+                    results[address] = {'error': str(e)}
+                    failed_analyses += 1
+
+            batch_results = {
+                'addresses_analyzed': len(addresses),
+                'successful_analyses': successful_analyses,
+                'failed_analyses': failed_analyses,
                 'blockchain': blockchain,
+                'backend_mode': self.backend_mode,
                 'analysis_timestamp': self._get_current_timestamp(),
-                'individual_results': individual_results,
-                'risk_summary': risk_summary,
-                'comparative_analysis': self._generate_comparative_analysis(individual_results)
+                'results': results,
+                'summary': self._generate_comparative_analysis(results)
             }
-            
-            logger.info(f"Comparative analysis completed for {len(addresses)} addresses")
-            return comparative_results
-            
+
+            logger.info(
+                f"Batch analysis completed: {successful_analyses} successful, {failed_analyses} failed")
+            return batch_results
+
         except Exception as e:
-            logger.error(f"Error in comparative analysis: {str(e)}")
-            return {'error': str(e), 'total_addresses': len(addresses)}
-    
-    def export_network_to_gephi(self, address: str = None, output_file: str = None) -> str:
-        """Export transaction network to Gephi format"""
+            logger.error(f"Batch analysis failed: {str(e)}")
+            return {'error': f'Batch analysis failed: {str(e)}'}
+
+    def export_network_to_gephi(self, address: str, output_file: str = None) -> Optional[str]:
+        """Export network to Gephi format"""
+        if not self.is_neo4j_available():
+            logger.warning("Gephi export not available in JSON backend mode")
+            return None
+
         try:
-            if address:
-                # Export specific address subgraph
-                output_file = output_file or f"subgraph_{address[:8]}.gexf"
-                return self.gephi_exporter.export_address_subgraph(address, output_file=output_file)
-            else:
-                # Export entire network
-                output_file = output_file or "transaction_network.gexf"
-                return self.gephi_exporter.export_to_gephi(output_file)
-                
+            if not output_file:
+                output_file = f"network_{address}_{self._get_current_timestamp()}.gexf"
+
+            export_file = self.gephi_exporter.export_address_subgraph(
+                address, output_file)
+            logger.info(f"Network exported to Gephi format: {export_file}")
+            return export_file
+
         except Exception as e:
-            logger.error(f"Error exporting to Gephi: {str(e)}")
-            return ""
-    
+            logger.error(f"Gephi export failed: {str(e)}")
+            return None
+
     def generate_risk_report(self, addresses: List[str], output_file: str = None) -> str:
-        """Generate comprehensive risk analysis report"""
+        """Generate comprehensive risk report"""
+        if not self.is_neo4j_available():
+            logger.warning(
+                "Risk report generation not available in JSON backend mode")
+            return "Risk report generation requires Neo4j backend"
+
         try:
-            return self.risk_scorer.export_risk_report(addresses, output_file)
+            report_content = self.risk_scorer.export_risk_report(
+                addresses, output_file)
+            logger.info(f"Risk report generated: {output_file}")
+            return report_content
+
         except Exception as e:
-            logger.error(f"Error generating risk report: {str(e)}")
-            return f"Error generating report: {str(e)}"
-    
+            logger.error(f"Risk report generation failed: {str(e)}")
+            return f"Risk report generation failed: {str(e)}"
+
     def get_system_status(self) -> Dict[str, Any]:
-        """Get system status and health information"""
+        """Get comprehensive system status"""
         try:
-            # Check if components are initialized
-            if self.data_ingestor is None:
-                return {
-                    'system_status': 'limited',
-                    'neo4j_connection': 'unavailable',
-                    'database_statistics': {'error': 'Neo4j not initialized'},
-                    'configuration': {
-                        'neo4j_uri': self.neo4j_uri,
-                        'blockchain': 'btc',
-                        'analysis_window': self.config['analysis']['time_window_hours']
-                    },
-                    'timestamp': self._get_current_timestamp(),
-                    'message': 'System running in limited mode - Neo4j unavailable'
-                }
-            
-            # Test Neo4j connection
-            neo4j_status = "healthy"
-            try:
-                with self.data_ingestor.driver.session() as session:
-                    result = session.run("RETURN 1 as test")
-                    result.single()
-            except Exception as e:
-                neo4j_status = f"error: {str(e)}"
-            
-            # Get database statistics
-            db_stats = self._get_database_statistics()
-            
-            return {
-                'system_status': 'operational',
+            neo4j_status = "connected" if self.is_neo4j_available() else "disconnected"
+
+            # Get database statistics if Neo4j is available
+            db_stats = {}
+            if self.is_neo4j_available():
+                db_stats = self._get_database_statistics()
+
+            status = {
+                'system_status': 'operational' if self.data_ingestor.is_operational() else 'degraded',
+                'backend_mode': self.backend_mode,
                 'neo4j_connection': neo4j_status,
+                'data_ingestor_status': 'operational' if self.data_ingestor.is_operational() else 'failed',
                 'database_statistics': db_stats,
+                'timestamp': self._get_current_timestamp(),
                 'configuration': {
                     'neo4j_uri': self.neo4j_uri,
-                    'blockchain': 'btc',
-                    'analysis_window': self.config['analysis']['time_window_hours']
-                },
-                'timestamp': self._get_current_timestamp()
+                    'use_json_backend': self.use_json_backend
+                }
             }
-            
+
+            return status
+
         except Exception as e:
             logger.error(f"Error getting system status: {str(e)}")
             return {
@@ -347,118 +409,159 @@ class ChainBreak:
                 'error': str(e),
                 'timestamp': self._get_current_timestamp()
             }
-    
+
     def _get_database_statistics(self) -> Dict[str, Any]:
         """Get database statistics from Neo4j"""
+        if not self.is_neo4j_available():
+            return {}
+
         try:
-            if self.data_ingestor is None:
-                return {'error': 'Neo4j not initialized'}
-                
             with self.data_ingestor.driver.session() as session:
                 # Count nodes by type
-                node_counts = session.run("""
-                    MATCH (n)
-                    RETURN labels(n)[0] as node_type, count(n) as count
-                    ORDER BY count DESC
-                """)
-                
-                # Count relationships by type
-                rel_counts = session.run("""
-                    MATCH ()-[r]->()
-                    RETURN type(r) as relationship_type, count(r) as count
-                    ORDER BY count DESC
-                """)
-                
+                node_counts = {}
+                for node_type in ['Address', 'Transaction', 'Block']:
+                    result = session.run(
+                        f"MATCH (n:{node_type}) RETURN count(n) as count")
+                    count = result.single()['count']
+                    node_counts[f'{node_type.lower()}_count'] = count
+
+                # Count relationships
+                result = session.run(
+                    "MATCH ()-[r]-() RETURN count(r) as count")
+                relationship_count = result.single()['count']
+
                 return {
-                    'node_counts': {record['node_type']: record['count'] for record in node_counts},
-                    'relationship_counts': {record['relationship_type']: record['count'] for record in rel_counts}
+                    'node_counts': node_counts,
+                    'relationship_count': relationship_count
                 }
-                
+
         except Exception as e:
             logger.warning(f"Error getting database statistics: {str(e)}")
-            return {'error': str(e)}
-    
-    def _generate_analysis_summary(self, layering_patterns: List, smurfing_patterns: List, 
-                                  volume_anomalies: List, risk_score: Dict) -> Dict[str, Any]:
-        """Generate summary of analysis results"""
-        return {
-            'total_anomalies': len(layering_patterns) + len(smurfing_patterns) + len(volume_anomalies),
-            'layering_count': len(layering_patterns),
-            'smurfing_count': len(smurfing_patterns),
-            'volume_anomaly_count': len(volume_anomalies),
-            'risk_level': risk_score.get('risk_level', 'UNKNOWN'),
-            'risk_score': risk_score.get('total_risk_score', 0),
-            'recommendations': self._generate_recommendations(risk_score)
+            return {}
+
+    def _generate_analysis_summary(self, address: str, anomalies: Dict[str, Any],
+                                   risk_score: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate analysis summary"""
+        summary = {
+            'address': address,
+            'anomaly_summary': {
+                'layering_count': len(anomalies.get('layering_patterns', [])),
+                'smurfing_count': len(anomalies.get('smurfing_patterns', [])),
+                'volume_anomaly_count': len(anomalies.get('volume_anomalies', []))
+            },
+            'risk_summary': {
+                'overall_score': risk_score.get('overall_score', 0) if risk_score else 0,
+                'risk_level': risk_score.get('risk_level', 'UNKNOWN') if risk_score else 'UNKNOWN'
+            },
+            'recommendations': self._generate_recommendations(anomalies, risk_score)
         }
-    
-    def _generate_comparative_analysis(self, individual_results: List[Dict]) -> Dict[str, Any]:
-        """Generate comparative analysis of multiple addresses"""
-        risk_scores = [result['risk_score']['total_risk_score'] for result in individual_results]
-        
+
+        return summary
+
+    def _generate_comparative_analysis(self, results: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate comparative analysis for multiple addresses"""
+        if not results:
+            return {}
+
+        risk_scores = []
+        anomaly_counts = []
+
+        for address, result in results.items():
+            if 'error' not in result:
+                risk_score = result.get('risk_score', {})
+                if risk_score:
+                    risk_scores.append(risk_score.get('overall_score', 0))
+
+                anomalies = result.get('anomalies', {})
+                total_anomalies = (
+                    len(anomalies.get('layering_patterns', [])) +
+                    len(anomalies.get('smurfing_patterns', [])) +
+                    len(anomalies.get('volume_anomalies', []))
+                )
+                anomaly_counts.append(total_anomalies)
+
+        if risk_scores:
+            avg_risk = sum(risk_scores) / len(risk_scores)
+            max_risk = max(risk_scores)
+            min_risk = min(risk_scores)
+        else:
+            avg_risk = max_risk = min_risk = 0
+
+        if anomaly_counts:
+            avg_anomalies = sum(anomaly_counts) / len(anomaly_counts)
+            total_anomalies = sum(anomaly_counts)
+        else:
+            avg_anomalies = total_anomalies = 0
+
         return {
-            'average_risk_score': sum(risk_scores) / len(risk_scores) if risk_scores else 0,
-            'highest_risk_address': max(individual_results, key=lambda x: x['risk_score']['total_risk_score']),
-            'lowest_risk_address': min(individual_results, key=lambda x: x['risk_score']['total_risk_score']),
-            'risk_distribution': {
-                'high_risk': len([r for r in individual_results if r['risk_score']['risk_level'] in ['HIGH', 'CRITICAL']]),
-                'medium_risk': len([r for r in individual_results if r['risk_score']['risk_level'] == 'MEDIUM']),
-                'low_risk': len([r for r in individual_results if r['risk_score']['risk_level'] in ['LOW', 'VERY_LOW']])
-            }
+            'risk_statistics': {
+                'average_risk_score': avg_risk,
+                'highest_risk_score': max_risk,
+                'lowest_risk_score': min_risk
+            },
+            'anomaly_statistics': {
+                'average_anomalies_per_address': avg_anomalies,
+                'total_anomalies': total_anomalies
+            },
+            'address_count': len(results)
         }
-    
-    def _generate_recommendations(self, risk_score: Dict) -> List[str]:
-        """Generate recommendations based on risk score"""
+
+    def _generate_recommendations(self, anomalies: Dict[str, Any],
+                                  risk_score: Dict[str, Any]) -> List[str]:
+        """Generate recommendations based on analysis results"""
         recommendations = []
+
+        if not risk_score:
+            recommendations.append(
+                "Enable Neo4j backend for comprehensive risk analysis")
+            return recommendations
+
         risk_level = risk_score.get('risk_level', 'UNKNOWN')
-        
+
         if risk_level in ['CRITICAL', 'HIGH']:
-            recommendations.extend([
-                "Immediate investigation required",
-                "Consider freezing associated accounts",
-                "Report to relevant authorities",
-                "Monitor all related addresses"
-            ])
-        elif risk_level == 'MEDIUM':
-            recommendations.extend([
-                "Enhanced monitoring recommended",
-                "Review transaction patterns",
-                "Consider additional verification"
-            ])
-        elif risk_level in ['LOW', 'VERY_LOW']:
-            recommendations.extend([
-                "Standard monitoring sufficient",
-                "No immediate action required"
-            ])
-        
+            recommendations.append(
+                "Immediate investigation required - high risk indicators detected")
+            recommendations.append(
+                "Consider reporting to relevant authorities")
+
+        if anomalies.get('layering_patterns'):
+            recommendations.append(
+                "Layering patterns detected - investigate transaction flow complexity")
+
+        if anomalies.get('smurfing_patterns'):
+            recommendations.append(
+                "Smurfing patterns detected - examine small transaction patterns")
+
+        if anomalies.get('volume_anomalies'):
+            recommendations.append(
+                "Volume anomalies detected - investigate unusual transaction amounts")
+
+        if not recommendations:
+            recommendations.append(
+                "No immediate concerns detected - continue monitoring")
+
         return recommendations
-    
+
     def _get_analysis_error_result(self, address: str, error_message: str) -> Dict[str, Any]:
         """Generate error result for failed analysis"""
         return {
             'address': address,
             'error': error_message,
+            'backend_mode': self.backend_mode,
             'analysis_timestamp': self._get_current_timestamp(),
             'status': 'failed'
         }
-    
+
     def _get_current_timestamp(self) -> str:
         """Get current timestamp in ISO format"""
         from datetime import datetime
         return datetime.now().isoformat()
-    
+
     def close(self):
-        """Clean up resources and close connections"""
+        """Cleanup resources"""
         try:
             if hasattr(self, 'data_ingestor'):
                 self.data_ingestor.close()
-            logger.info("ChainBreak shutdown completed")
+            logger.info("ChainBreak resources cleaned up successfully")
         except Exception as e:
-            logger.error(f"Error during shutdown: {str(e)}")
-    
-    def __enter__(self):
-        """Context manager entry"""
-        return self
-    
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Context manager exit"""
-        self.close()
+            logger.error(f"Error during cleanup: {str(e)}")
