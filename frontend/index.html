@@ -75,19 +75,57 @@
         border-radius: 999px;
         font-size: 12px;
       }
+      .badge.online {
+        border-color: #22c55e;
+        color: #22c55e;
+      }
+      .badge.offline {
+        border-color: #ef4444;
+        color: #ef4444;
+      }
       .hint {
         font-size: 12px;
         color: #94a3b8;
+      }
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+      }
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #22c55e;
+      }
+      .status-dot.offline {
+        background: #ef4444;
+      }
+      .warning {
+        background: #fef3c7;
+        color: #92400e;
+        padding: 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        margin-bottom: 10px;
       }
     </style>
   </head>
   <body>
     <header>
       <div style="font-weight: 700">ChainBreak</div>
+      <div class="status-indicator">
+        <div id="status-dot" class="status-dot"></div>
+        <span id="status-text">Checking...</span>
+      </div>
       <a class="badge" href="/api/status" target="_blank">Status</a>
     </header>
     <div id="container">
       <div id="left">
+        <div id="warning-banner" class="warning" style="display: none;">
+          Neo4j database is currently offline. Some features may be limited, but you can still fetch and view blockchain data.
+        </div>
         <input id="address" placeholder="Bitcoin address" />
         <div class="row">
           <input id="tx_limit" type="number" min="1" max="200" value="50" />
@@ -121,7 +159,8 @@
       };
       let renderer = null,
         graph = null,
-        selectedNode = null;
+        selectedNode = null,
+        systemStatus = { online: false, neo4j: false };
       const palette = [
         "#ef4444",
         "#3b82f6",
@@ -137,22 +176,71 @@
         "#f59e0b",
       ];
 
-      async function listFiles() {
-        const r = await fetch("/api/graph/list");
-        const j = await r.json();
-        const el = $("#files");
-        el.innerHTML = "";
-        if (j.success) {
-          j.files.forEach((name) => {
-            const b = document.createElement("button");
-            b.textContent = name;
-            b.onclick = () => loadGraph(name);
-            el.appendChild(b);
-            el.appendChild(document.createElement("br"));
-          });
-          log("listed " + j.files.length + " graphs");
+      async function checkSystemStatus() {
+        try {
+          const r = await fetch("/api/status");
+          const j = await r.json();
+          if (j.success) {
+            systemStatus.online = true;
+            systemStatus.neo4j = !j.data.mock_mode;
+            updateStatusDisplay();
+            log("system status: " + (systemStatus.neo4j ? "Neo4j online" : "Neo4j offline"));
+          } else {
+            systemStatus.online = false;
+            systemStatus.neo4j = false;
+            updateStatusDisplay();
+            log("system status: offline");
+          }
+        } catch (e) {
+          systemStatus.online = false;
+          systemStatus.neo4j = false;
+          updateStatusDisplay();
+          log("system status check failed: " + e.message);
+        }
+      }
+
+      function updateStatusDisplay() {
+        const statusDot = $("#status-dot");
+        const statusText = $("#status-text");
+        const warningBanner = $("#warning-banner");
+        
+        if (systemStatus.online) {
+          if (systemStatus.neo4j) {
+            statusDot.className = "status-dot";
+            statusText.textContent = "Online";
+            warningBanner.style.display = "none";
+          } else {
+            statusDot.className = "status-dot offline";
+            statusText.textContent = "Limited";
+            warningBanner.style.display = "block";
+          }
         } else {
-          log("list error " + j.error);
+          statusDot.className = "status-dot offline";
+          statusText.textContent = "Offline";
+          warningBanner.style.display = "block";
+        }
+      }
+
+      async function listFiles() {
+        try {
+          const r = await fetch("/api/graph/list");
+          const j = await r.json();
+          const el = $("#files");
+          el.innerHTML = "";
+          if (j.success) {
+            j.files.forEach((name) => {
+              const b = document.createElement("button");
+              b.textContent = name;
+              b.onclick = () => loadGraph(name);
+              el.appendChild(b);
+              el.appendChild(document.createElement("br"));
+            });
+            log("listed " + j.files.length + " graphs");
+          } else {
+            log("list error " + j.error);
+          }
+        } catch (e) {
+          log("list files failed: " + e.message);
         }
       }
 
@@ -163,101 +251,115 @@
           log("address required");
           return;
         }
-        const r = await fetch("/api/graph/address", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ address, tx_limit }),
-        });
-        const j = await r.json();
-        if (j.success) {
-          log("saved " + j.file);
-          await listFiles();
-        } else {
-          log("fetch error " + j.error);
+        try {
+          const r = await fetch("/api/graph/address", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ address, tx_limit }),
+          });
+          const j = await r.json();
+          if (j.success) {
+            log("saved " + j.file);
+            await listFiles();
+          } else {
+            log("fetch error " + j.error);
+          }
+        } catch (e) {
+          log("fetch graph failed: " + e.message);
         }
       }
 
       async function loadGraph(name) {
-        const r = await fetch(
-          "/api/graph/get?name=" + encodeURIComponent(name)
-        );
-        const graphJson = await r.json();
-        const G = new graphology.Graph({ multi: false, type: "directed" });
-        const nodes = graphJson.nodes || [];
-        const edges = graphJson.edges || [];
-        nodes.forEach((n, i) => {
-          const x = Math.cos((2 * Math.PI * i) / Math.max(1, nodes.length));
-          const y = Math.sin((2 * Math.PI * i) / Math.max(1, nodes.length));
-          G.addNode(n.id, {
-            label: n.label || n.id,
-            color: n.type === "transaction" ? "#60a5fa" : "#34d399",
-            x,
-            y,
-            size: n.type === "transaction" ? 2 : 3,
-            type: n.type || "address",
-          });
-        });
-        edges.forEach((e, i) => {
-          const id = e.id || `${e.source}->${e.target}-${i}`;
-          if (G.hasNode(e.source) && G.hasNode(e.target) && !G.hasEdge(id)) {
-            G.addEdgeWithKey(id, e.source, e.target, {
-              label: e.type || "",
-              size: 1,
-              color: e.type === "SENT_FROM" ? "#ef4444" : "#3b82f6",
+        try {
+          const r = await fetch(
+            "/api/graph/get?name=" + encodeURIComponent(name)
+          );
+          const graphJson = await r.json();
+          const G = new graphology.Graph({ multi: false, type: "directed" });
+          const nodes = graphJson.nodes || [];
+          const edges = graphJson.edges || [];
+          nodes.forEach((n, i) => {
+            const x = Math.cos((2 * Math.PI * i) / Math.max(1, nodes.length));
+            const y = Math.sin((2 * Math.PI * i) / Math.max(1, nodes.length));
+            G.addNode(n.id, {
+              label: n.label || n.id,
+              color: n.type === "transaction" ? "#60a5fa" : "#34d399",
+              x,
+              y,
+              size: n.type === "transaction" ? 2 : 3,
+              type: n.type || "address",
             });
-          }
-        });
-        graph = G;
-        const container = document.getElementById("sigma-container");
-        if (renderer) renderer.kill();
-        renderer = new sigma.Sigma(graph, container, {
-          renderLabels: true,
-          labelSize: 12,
-          minNodeSize: 1.5,
-          maxNodeSize: 6,
-          minEdgeSize: 0.5,
-          maxEdgeSize: 4,
-        });
-        renderer.on("clickNode", ({ node }) => {
-          selectedNode = node;
-          log("selected node " + node);
-        });
-        graphologyLayoutForceatlas2.assign(graph, {
-          iterations: 200,
-          settings: { scalingRatio: 10, gravity: 0.5, slowDown: 2 },
-        });
-        renderer.refresh();
-        log("rendered " + nodes.length + " nodes " + edges.length + " edges");
+          });
+          edges.forEach((e, i) => {
+            const id = e.id || `${e.source}->${e.target}-${i}`;
+            if (G.hasNode(e.source) && G.hasNode(e.target) && !G.hasEdge(id)) {
+              G.addEdgeWithKey(id, e.source, e.target, {
+                label: e.type || "",
+                size: 1,
+                color: e.type === "SENT_FROM" ? "#ef4444" : "#3b82f6",
+              });
+            }
+          });
+          graph = G;
+          const container = document.getElementById("sigma-container");
+          if (renderer) renderer.kill();
+          renderer = new sigma.Sigma(graph, container, {
+            renderLabels: true,
+            labelSize: 12,
+            minNodeSize: 1.5,
+            maxNodeSize: 6,
+            minEdgeSize: 0.5,
+            maxEdgeSize: 4,
+          });
+          renderer.on("clickNode", ({ node }) => {
+            selectedNode = node;
+            log("selected node " + node);
+          });
+          graphologyLayoutForceatlas2.assign(graph, {
+            iterations: 200,
+            settings: { scalingRatio: 10, gravity: 0.5, slowDown: 2 },
+          });
+          renderer.refresh();
+          log("rendered " + nodes.length + " nodes " + edges.length + " edges");
+        } catch (e) {
+          log("load graph failed: " + e.message);
+        }
       }
 
-      function runLouvain() {
+      async function runLouvain() {
         if (!graph) {
           log("no graph loaded");
           return;
         }
-        const result = graphologyCommunitiesLouvain.louvain(graph, {
-          rng: Math.random,
-          resolution: 1,
-        });
-        const commToColor = {};
-        let idx = 0;
-        Object.keys(result).forEach((node) => {
-          const c = result[node];
-          if (!(c in commToColor))
-            commToColor[c] = palette[idx++ % palette.length];
-        });
-        graph.forEachNode((n, attr) => {
-          const c = result[n];
-          graph.setNodeAttribute(n, "color", commToColor[c] || "#93c5fd");
-        });
-        renderer.refresh();
-        log("louvain communities=" + new Set(Object.values(result)).size);
+        try {
+          const communities = graphologyCommunitiesLouvain(graph, {
+            seed: selectedNode,
+          });
+          const colors = {};
+          let i = 0;
+          for (const [node, community] of communities.entries()) {
+            if (!colors[community]) {
+              colors[community] = palette[i % palette.length];
+              i++;
+            }
+            graph.setNodeAttribute(node, "color", colors[community]);
+          }
+          renderer.refresh();
+          log("louvain: " + i + " communities");
+        } catch (e) {
+          log("louvain failed: " + e.message);
+        }
       }
 
+      // Initialize
+      checkSystemStatus();
+      listFiles();
+      setInterval(checkSystemStatus, 30000); // Check status every 30 seconds
+
+      // Event listeners
       $("#fetchBtn").onclick = fetchGraph;
       $("#refreshBtn").onclick = listFiles;
       $("#runLouvainBtn").onclick = runLouvain;
-      listFiles();
     </script>
   </body>
 </html>

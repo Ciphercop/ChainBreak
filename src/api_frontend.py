@@ -42,7 +42,21 @@ def get_graph():
         name = request.args.get("name", "").strip()
         if not name:
             return jsonify({"success": False, "error": "name required"}), 400
-        return send_from_directory(DATA_DIR.as_posix(), name, mimetype="application/json")
+        
+        # Ensure DATA_DIR is absolute
+        data_dir = DATA_DIR.resolve()
+        file_path = data_dir / name
+        
+        # Check if file exists
+        if not file_path.exists():
+            return jsonify({"success": False, "error": f"File {name} not found"}), 404
+        
+        # Read and return the file content directly
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        from flask import Response
+        return Response(content, mimetype="application/json")
     except Exception as e:
         logger.error(f"get_graph_error err={e}")
         return jsonify({"success": False, "error": str(e)}), 500

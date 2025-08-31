@@ -5,6 +5,7 @@ Integrates all components for comprehensive blockchain analysis
 
 import logging
 import yaml
+import os
 from typing import Dict, Any, List, Optional
 from pathlib import Path
 
@@ -31,9 +32,15 @@ class ChainBreak:
         
         # Initialize Neo4j connection
         neo4j_config = self.config.get('neo4j', {})
-        self.neo4j_uri = neo4j_config.get('uri', 'bolt://localhost:7687')
-        self.neo4j_user = neo4j_config.get('username', 'neo4j')
-        self.neo4j_password = neo4j_config.get('password', 'password')
+        # Use environment variables if available (for Docker), otherwise use config
+        self.neo4j_uri = os.environ.get('NEO4J_URI', neo4j_config.get('uri', 'bolt://localhost:7687'))
+        self.neo4j_user = os.environ.get('NEO4J_USERNAME', neo4j_config.get('username', 'neo4j'))
+        self.neo4j_password = os.environ.get('NEO4J_PASSWORD', neo4j_config.get('password', 'password'))
+        
+        # Debug logging
+        logger.info(f"Neo4j URI: {self.neo4j_uri}")
+        logger.info(f"Neo4j User: {self.neo4j_user}")
+        logger.info(f"Neo4j Password: {'*' * len(self.neo4j_password) if self.neo4j_password else 'None'}")
         
         # Initialize components
         self._initialize_components()
@@ -91,6 +98,23 @@ class ChainBreak:
     def _initialize_components(self):
         """Initialize all ChainBreak components"""
         try:
+            # Check if Neo4j should be skipped
+            skip_neo4j = os.environ.get('CHAINBREAK_NO_NEO4J', '0') == '1'
+            
+            if skip_neo4j:
+                logger.warning("Neo4j initialization skipped due to CHAINBREAK_NO_NEO4J environment variable")
+                self.data_ingestor = None
+                self.layering_detector = None
+                self.smurfing_detector = None
+                self.volume_detector = None
+                self.temporal_detector = None
+                self.risk_scorer = None
+                self.visualizer = None
+                self.gephi_exporter = None
+                self.chart_generator = None
+                logger.info("Components initialized in limited mode (no Neo4j)")
+                return
+            
             # Initialize data ingestor
             self.data_ingestor = BlockchainDataIngestor(
                 self.neo4j_uri, 
@@ -116,7 +140,17 @@ class ChainBreak:
             
         except Exception as e:
             logger.error(f"Error initializing components: {str(e)}")
-            raise
+            # Don't raise the exception, allow the system to run in limited mode
+            logger.warning("System will run in limited mode due to initialization errors")
+            self.data_ingestor = None
+            self.layering_detector = None
+            self.smurfing_detector = None
+            self.volume_detector = None
+            self.temporal_detector = None
+            self.risk_scorer = None
+            self.visualizer = None
+            self.gephi_exporter = None
+            self.chart_generator = None
     
     def analyze_address(self, address: str, blockchain: str = 'btc', 
                        generate_visualizations: bool = True) -> Dict[str, Any]:
@@ -267,6 +301,21 @@ class ChainBreak:
     def get_system_status(self) -> Dict[str, Any]:
         """Get system status and health information"""
         try:
+            # Check if components are initialized
+            if self.data_ingestor is None:
+                return {
+                    'system_status': 'limited',
+                    'neo4j_connection': 'unavailable',
+                    'database_statistics': {'error': 'Neo4j not initialized'},
+                    'configuration': {
+                        'neo4j_uri': self.neo4j_uri,
+                        'blockchain': 'btc',
+                        'analysis_window': self.config['analysis']['time_window_hours']
+                    },
+                    'timestamp': self._get_current_timestamp(),
+                    'message': 'System running in limited mode - Neo4j unavailable'
+                }
+            
             # Test Neo4j connection
             neo4j_status = "healthy"
             try:
@@ -302,6 +351,9 @@ class ChainBreak:
     def _get_database_statistics(self) -> Dict[str, Any]:
         """Get database statistics from Neo4j"""
         try:
+            if self.data_ingestor is None:
+                return {'error': 'Neo4j not initialized'}
+                
             with self.data_ingestor.driver.session() as session:
                 # Count nodes by type
                 node_counts = session.run("""
