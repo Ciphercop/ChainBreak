@@ -6,6 +6,7 @@ import { Loader2, AlertCircle, Play, RotateCcw, Expand, Shrink, Image } from 'lu
 import logger from '../utils/logger';
 import { Plus, Minus } from 'lucide-react';
 import { saveSvgAsPng } from 'save-svg-as-png';
+import toast from 'react-hot-toast';
 const GraphRenderer = ({ graphData, onNodeClick, className = '' }) => {
   const containerRef = useRef(null);
   const svgRef = useRef(null);
@@ -93,6 +94,22 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '' }) => {
         .style('background', '#111827');
       svgRef.current = svg;
       const g = svg.append('g');
+      
+      // Add arrow markers for edges
+      const defs = svg.append('defs');
+      const arrowMarker = defs.append('marker')
+        .attr('id', 'arrowhead')
+        .attr('viewBox', '0 -5 10 10')
+        .attr('refX', 8)
+        .attr('refY', 0)
+        .attr('markerWidth', 6)
+        .attr('markerHeight', 6)
+        .attr('orient', 'auto');
+      
+      arrowMarker.append('path')
+        .attr('d', 'M0,-5L10,0L0,5')
+        .attr('fill', '#94a3b8');
+      
       const linkGroup = g.append('g').attr('stroke', '#94a3b8').attr('stroke-opacity', 0.6);
       const nodeGroup = g.append('g');
       const zoom = d3.zoom()
@@ -105,15 +122,37 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '' }) => {
       const links = linkGroup.selectAll('line')
         .data(graph.edges)
         .join('line')
-        .attr('stroke-width', d => d.size || 1)
-        .attr('stroke', d => d.color || '#94a3b8');
+        .attr('stroke-width', d => Math.max(1, Math.min(5, (d.value || 0) / 100000000)) || 1)
+        .attr('stroke', d => {
+          if (d.direction === 'incoming') return '#10b981'; // green for incoming
+          if (d.direction === 'outgoing') return '#ef4444'; // red for outgoing
+          return d.color || '#94a3b8';
+        })
+        .attr('stroke-opacity', 0.8)
+        .attr('marker-end', 'url(#arrowhead)');
       const nodes = nodeGroup.selectAll('circle')
         .data(graph.nodes)
         .join('circle')
-        .attr('r', d => d.size || 8)
-        .attr('fill', d => d.color || '#6366f1')
-        .attr('stroke', '#111827')
-        .attr('stroke-width', 1.5)
+        .attr('r', d => {
+          if (d.type === 'address') return Math.max(6, Math.min(15, (d.balance || 0) / 1000000000 + 6));
+          if (d.type === 'transaction') return Math.max(4, Math.min(12, (d.total_input_value || 0) / 1000000000 + 4));
+          return d.size || 8;
+        })
+        .attr('fill', d => {
+          if (d.type === 'address') {
+            if (d.balance > 0) return '#10b981'; // green for addresses with balance
+            return '#6b7280'; // gray for addresses without balance
+          }
+          if (d.type === 'transaction') return '#3b82f6'; // blue for transactions
+          return d.color || '#6366f1';
+        })
+        .attr('stroke', d => {
+          if (d.type === 'address' && d.balance > 0) return '#059669';
+          if (d.type === 'transaction') return '#1d4ed8';
+          return '#111827';
+        })
+        .attr('stroke-width', 2)
+        .style('cursor', 'pointer')
         .call(d3.drag()
           .on('start', (event, d) => {
             if (!event.active && simulationRef.current) simulationRef.current.alphaTarget(0.3).restart();
@@ -130,7 +169,18 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '' }) => {
             d.fy = null;
           })
         );
-      nodes.append('title').text(d => d.label || d.id);
+      
+      // Add tooltips with rich information
+      nodes.append('title').text(d => {
+        if (d.type === 'address') {
+          return `${d.label || d.id}\nType: Address\nBalance: ${(d.balance || 0) / 100000000} BTC\nTransactions: ${d.transaction_count || 0}`;
+        }
+        if (d.type === 'transaction') {
+          return `${d.label || d.id}\nType: Transaction\nValue: ${(d.total_input_value || 0) / 100000000} BTC\nFee: ${(d.fee || 0) / 100000000} BTC`;
+        }
+        return d.label || d.id;
+      });
+      
       nodes.on('click', (_, d) => {
         if (onNodeClick) onNodeClick(d);
       });
@@ -286,14 +336,18 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '' }) => {
     if (!document.fullscreenElement) {
       containerRef.current.requestFullscreen().then(() => {
         setIsFullscreen(true);
+        logger.info('Entered fullscreen mode');
       }).catch(err => {
         logger.error('Failed to enter fullscreen', err);
+        toast.error('Failed to enter fullscreen mode');
       });
     } else {
       document.exitFullscreen().then(() => {
         setIsFullscreen(false);
+        logger.info('Exited fullscreen mode');
       }).catch(err => {
         logger.error('Failed to exit fullscreen', err);
+        toast.error('Failed to exit fullscreen mode');
       });
     }
   }, []);
@@ -346,10 +400,24 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '' }) => {
         }, 300);
       }
     };
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape' && document.fullscreenElement) {
+        document.exitFullscreen().then(() => {
+          setIsFullscreen(false);
+          logger.info('Exited fullscreen via ESC key');
+        }).catch(err => {
+          logger.error('Failed to exit fullscreen via ESC', err);
+        });
+      }
+    };
     
     document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('keydown', handleKeyDown);
+    
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
 
@@ -495,14 +563,45 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '' }) => {
           whileTap={{ scale: 0.95 }}
           onClick={toggleFullscreen}
           disabled={!containerReady}
-          className="flex items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors mt-2"
+          className={`flex items-center gap-2 px-3 py-2 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors mt-2 ${
+            isFullscreen 
+              ? 'bg-red-600 hover:bg-red-700 border-2 border-red-400' 
+              : 'bg-indigo-600 hover:bg-indigo-700'
+          }`}
         >
           {isFullscreen ? <Shrink className="w-4 h-4" /> : <Expand className="w-4 h-4" />}
-          {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+          {isFullscreen ? 'Exit Fullscreen (ESC)' : 'Fullscreen'}
         </motion.button>
       </div>
       
-      <div className="absolute top-4 right-4 z-10">
+      <div className="absolute top-4 right-4 z-10 space-y-2">
+        {/* Legend */}
+        <div className="bg-gray-800/90 backdrop-blur-sm rounded-lg p-4 shadow-lg border border-gray-700/50">
+          <h4 className="text-sm font-semibold text-white mb-3">Legend</h4>
+          <div className="space-y-2 text-xs">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+              <span className="text-gray-300">Address (with balance)</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 rounded-full bg-gray-500"></div>
+              <span className="text-gray-300">Address (no balance)</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+              <span className="text-gray-300">Transaction</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-0.5 bg-green-500"></div>
+              <span className="text-gray-300">Incoming flow</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-0.5 bg-red-500"></div>
+              <span className="text-gray-300">Outgoing flow</span>
+            </div>
+          </div>
+        </div>
+
         {communities && (
           <div className="bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
             <p className="text-sm font-medium text-gray-700">
