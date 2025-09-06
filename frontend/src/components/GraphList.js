@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, RefreshCw, Download, Trash2, Eye } from 'lucide-react';
+import { FileText, RefreshCw, Trash2, Eye } from 'lucide-react';
 
 const GraphList = ({ graphs, onGraphSelect, onRefresh, isLoading }) => {
   const handleGraphSelect = (graphName) => {
@@ -72,39 +72,7 @@ const GraphList = ({ graphs, onGraphSelect, onRefresh, isLoading }) => {
                       {graph.replace('.json', '')}
                     </p>
                   </div>
-                  
-                  <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleGraphSelect(graph);
-                      }}
-                      className="p-2 text-gray-400 hover:text-blue-400 hover:bg-blue-900/20 rounded-lg transition-colors"
-                      title="View Graph"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Download functionality would go here
-                      }}
-                      className="p-2 text-gray-400 hover:text-green-400 hover:bg-green-900/20 rounded-lg transition-colors"
-                      title="Download"
-                    >
-                      <Download className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Delete functionality would go here
-                      }}
-                      className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                
                 </div>
               </motion.div>
             ))}
