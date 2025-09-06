@@ -1,3 +1,4 @@
+// frontend/src/utils/api.js
 import axios from 'axios';
 import logger from './logger';
 
@@ -194,7 +195,7 @@ export const chainbreakAPI = {
   },
 
   async analyzeAddress(address, blockchain = 'btc', generateVisualizations = true) {
-    return apiService.post('/api/analyze_address', {
+    return apiService.post('/api/analyze', {
       address,
       blockchain,
       generate_visualizations: generateVisualizations
@@ -202,7 +203,7 @@ export const chainbreakAPI = {
   },
 
   async analyzeMultipleAddresses(addresses, blockchain = 'btc') {
-    return apiService.post('/api/analyze_multiple_addresses', {
+    return apiService.post('/api/analyze/batch', {
       addresses,
       blockchain
     });
@@ -211,18 +212,18 @@ export const chainbreakAPI = {
   async exportToGephi(address, outputFile = null) {
     const params = { address };
     if (outputFile) params.output_file = outputFile;
-    return apiService.get('/api/export_to_gephi', { params });
+    return apiService.get('/api/export/gephi', { params });
   },
 
   async generateRiskReport(addresses, outputFile = null) {
-    return apiService.post('/api/generate_risk_report', {
+    return apiService.post('/api/report/risk', {
       addresses,
       output_file: outputFile
     });
   },
 
   async getAnalyzedAddresses() {
-    return apiService.get('/api/analyzed_addresses');
+    return apiService.get('/api/addresses');
   },
 
   async getStatistics() {

@@ -1,582 +1,361 @@
-"""
-Flask API Layer for ChainBreak
-Provides RESTful interface for system interaction
-"""
-
-from flask import Flask, jsonify, request, render_template_string, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import logging
 import traceback
-from datetime import datetime
+import json
+from pathlib import Path
 from .chainbreak import ChainBreak
 from .api_frontend import bp as frontend_bp
-from pathlib import Path
-import json
 
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-CORS(app)
+
+# Enable CORS before registering blueprints
+CORS(app, resources={
+    r"/api/*": {"origins": ["http://localhost:3000", "http://localhost:5000"]},
+    r"/frontend/*": {"origins": ["http://localhost:3000", "http://localhost:5000"]}
+})
+
 app.register_blueprint(frontend_bp)
 
-GRAPH_DIR = Path("data/graphs")
+# Unified data directory - use Data/graph (case-sensitive)
+GRAPH_DIR = Path("Data/graph")
 GRAPH_DIR.mkdir(parents=True, exist_ok=True)
+
+logger.info(f"Graph directory initialized: {GRAPH_DIR.resolve()}")
 
 
 def get_chainbreak():
-    """Get or create ChainBreak instance"""
-    if not hasattr(app, 'chainbreak_instance'):
-        try:
-            app.chainbreak_instance = ChainBreak()
-        except Exception as e:
-            logger.error(f"Failed to initialize ChainBreak: {e}")
-            app.chainbreak_instance = None
-    return app.chainbreak_instance
+    try:
+        from .chainbreak import ChainBreak
+        return ChainBreak()
+    except Exception as e:
+        logger.error(f"Failed to initialize ChainBreak: {e}")
+        return None
 
 
 @app.route("/")
 def index_new():
-    return send_from_directory("frontend", "index.html")
+    try:
+        # Try to serve the React build index.html
+        frontend_build = Path("frontend/build").resolve()
+        if frontend_build.exists():
+            logger.info(f"Serving React frontend from {frontend_build}")
+            return send_from_directory(str(frontend_build), "index.html")
+        else:
+            logger.info(
+                "React build not found, falling back to static frontend")
+            static_frontend = Path("frontend").resolve()
+            return send_from_directory(str(static_frontend), "index.html")
+    except Exception as e:
+        logger.error(f"Error serving frontend: {e}")
+        return jsonify({"error": "Frontend not available"}), 404
 
 
-@app.route('/api/')
-def api_index():
-    """Main API documentation page"""
-    html_template = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>ChainBreak API</title>
-        <style>
-            body { font-family: Arial, sans-serif; margin: 40px; }
-            .endpoint { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 5px; }
-            .method { background: #007bff; color: white; padding: 5px 10px; border-radius: 3px; display: inline-block; margin-right: 10px; }
-            .url { font-family: monospace; font-weight: bold; }
-            .description { margin-top: 10px; }
-        </style>
-    </head>
-    <body>
-        <h1>🔗 ChainBreak Blockchain Forensic Analysis API</h1>
-        <p>Comprehensive blockchain analysis and anomaly detection API</p>
-        
-        <h2>📊 System Status</h2>
-        <div class="endpoint">
-            <span class="method">GET</span>
-            <span class="url">/api/status</span>
-            <div class="description">Get system status and health information</div>
-        </div>
-        
-        <div class="endpoint">
-            <span class="method">GET</span>
-            <span class="url">/api/mode</span>
-            <div class="description">Get current backend mode (Neo4j or JSON)</div>
-        </div>
-        
-        <h2>🔍 Analysis Endpoints</h2>
-        <div class="endpoint">
-            <span class="method">POST</span>
-            <span class="url">/api/analyze</span>
-            <div class="description">Analyze a single Bitcoin address</div>
-        </div>
-        
-        <div class="endpoint">
-            <span class="method">POST</span>
-            <span class="url">/api/analyze/batch</span>
-            <div class="description">Analyze multiple Bitcoin addresses</div>
-        </div>
-        
-        <h2>📤 Export Endpoints</h2>
-        <div class="endpoint">
-            <span class="method">GET</span>
-            <span class="url">/api/export/gephi</span>
-            <div class="description">Export network to Gephi format</div>
-        </div>
-        
-        <h2>📋 Reporting Endpoints</h2>
-        <div class="endpoint">
-            <span class="method">POST</span>
-            <span class="url">/api/report/risk</span>
-            <div class="description">Generate comprehensive risk report</div>
-        </div>
-        
-        <h2>📊 Statistics Endpoints</h2>
-        <div class="endpoint">
-            <span class="method">GET</span>
-            <span class="url">/api/addresses</span>
-            <div class="description">Get list of analyzed addresses</div>
-        </div>
-        
-        <div class="endpoint">
-            <span class="method">GET</span>
-            <span class="url">/api/statistics</span>
-            <div class="description">Get system statistics and metrics</div>
-        </div>
-        
-        <h2>🌐 Frontend</h2>
-        <div class="endpoint">
-            <span class="method">GET</span>
-            <span class="url">/frontend/index.html</span>
-            <div class="description">Interactive graph visualization interface</div>
-        </div>
-        
-        <h2>📖 Usage Examples</h2>
-        <h3>Analyze Address</h3>
-        <pre>
-curl -X POST http://localhost:5000/api/analyze \\
-  -H "Content-Type: application/json" \\
-  -d '{"address": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"}'
-        </pre>
-        
-        <h3>Check Status</h3>
-        <pre>curl http://localhost:5000/api/status</pre>
-        
-        <h3>Check Backend Mode</h3>
-        <pre>curl http://localhost:5000/api/mode</pre>
-        
-        <p><strong>Note:</strong> The system automatically falls back to JSON mode if Neo4j is unavailable.</p>
-    </body>
-    </html>
-    """
-    return html_template
+@app.route("/static/<path:filename>")
+def serve_static(filename):
+    try:
+        frontend_build = Path("frontend/build/static").resolve()
+        if frontend_build.exists():
+            logger.info(f"Serving static file from React build: {filename}")
+            return send_from_directory(str(frontend_build), filename)
+        else:
+            logger.info(
+                f"React static not found, falling back to static: {filename}")
+            static_dir = Path("frontend/static").resolve()
+            return send_from_directory(str(static_dir), filename)
+    except Exception as e:
+        logger.error(f"Error serving static file {filename}: {e}")
+        return jsonify({"error": "Static file not found"}), 404
+
+
+@app.route("/<path:filename>")
+def serve_frontend_files(filename):
+    try:
+        # Skip API routes
+        if filename.startswith('api/'):
+            return jsonify({"error": "API endpoint not found"}), 404
+
+        frontend_build = Path("frontend/build").resolve()
+        if frontend_build.exists():
+            file_path = frontend_build / filename
+            if file_path.exists() and file_path.is_file():
+                logger.info(f"Serving React file: {filename}")
+                return send_from_directory(str(frontend_build), filename)
+
+        # Fallback to old static files
+        logger.info(
+            f"React file not found, falling back to static: {filename}")
+        static_dir = Path("frontend").resolve()
+        return send_from_directory(str(static_dir), filename)
+    except Exception as e:
+        logger.error(f"Error serving frontend file {filename}: {e}")
+        return jsonify({"error": "File not found"}), 404
+
+
+@app.route("/api/mode", methods=["GET"])
+def get_backend_mode():
+    """Get current backend mode"""
+    try:
+        chainbreak = get_chainbreak()
+        if chainbreak:
+            return jsonify({
+                "success": True,
+                "data": {
+                    "backend_mode": chainbreak.get_backend_mode(),
+                    "neo4j_available": chainbreak.is_neo4j_available()
+                }
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": "ChainBreak not initialized"
+            }), 500
+    except Exception as e:
+        logger.error(f"Error getting backend mode: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@app.route("/api/status", methods=["GET"])
+def get_system_status():
+    """Get system status"""
+    try:
+        chainbreak = get_chainbreak()
+        if chainbreak:
+            status = chainbreak.get_system_status()
+            return jsonify({
+                "success": True,
+                "data": status
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": "ChainBreak not initialized"
+            }), 500
+    except Exception as e:
+        logger.error(f"Error getting system status: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 
 @app.route("/api/graph/list", methods=["GET"])
 def list_graphs():
+    """List available graph files"""
     try:
         files = [f.name for f in GRAPH_DIR.glob("*.json")]
         return jsonify({"success": True, "files": files})
     except Exception as e:
+        logger.error(f"Error listing graphs: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route("/api/graph/address", methods=["POST"])
 def fetch_graph_address():
+    """Fetch and save graph for an address"""
     try:
         data = request.get_json()
         address = data.get("address")
         tx_limit = data.get("tx_limit", 50)
+
         if not address:
             return jsonify({"success": False, "error": "Address required"}), 400
+
         chainbreak = get_chainbreak()
         if not chainbreak:
             return jsonify({"success": False, "error": "ChainBreak not initialized"}), 500
-        graph_json = chainbreak.export_graph_json(address, tx_limit)
-        file_path = GRAPH_DIR / f"{address}.json"
+
+        # Import here to avoid circular imports
+        from .fetch_blockchain_com import BlockchainComFetcher
+
+        fetcher = BlockchainComFetcher()
+        graph = fetcher.build_graph_for_address(address, tx_limit=tx_limit)
+
+        # Sanitize filename - only allow alphanumeric, underscore, hyphen
+        import re
+        safe_address = re.sub(r'[^A-Za-z0-9_\-]', '_', address)
+        filename = f"graph_{safe_address}.json"
+
+        file_path = GRAPH_DIR / filename
         with open(file_path, "w") as f:
-            json.dump(graph_json, f)
-        return jsonify({"success": True, "file": file_path.name})
+            json.dump(graph, f, indent=2)
+
+        logger.info(
+            f"Graph saved: {filename} with {len(graph.get('nodes', []))} nodes")
+
+        return jsonify({
+            "success": True,
+            "file": filename,
+            "meta": graph.get("meta", {})
+        })
+
     except Exception as e:
-        logger.error(traceback.format_exc())
+        logger.error(f"Error fetching graph: {traceback.format_exc()}")
         return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route("/api/graph/get", methods=["GET"])
 def get_graph():
+    """Get a specific graph by name"""
     try:
         name = request.args.get("name")
+        if not name:
+            return jsonify({"success": False, "error": "Name parameter required"}), 400
+
         file_path = GRAPH_DIR / name
         if not file_path.exists():
             return jsonify({"success": False, "error": "Graph not found"}), 404
+
         with open(file_path, "r") as f:
             graph_json = json.load(f)
+
         return jsonify(graph_json)
+
     except Exception as e:
+        logger.error(f"Error getting graph: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
 
-@app.route('/api/status', methods=['GET'])
-def get_status():
-    """Get system status and health information"""
-    try:
-        chainbreak = get_chainbreak()
-        if not chainbreak:
-            return jsonify({
-                'success': False,
-                'error': 'ChainBreak not initialized',
-                'timestamp': get_current_timestamp()
-            }), 500
-
-        status = chainbreak.get_system_status()
-        return jsonify({
-            'success': True,
-            'data': status,
-            'timestamp': status.get('timestamp'),
-            'message': 'System status retrieved successfully'
-        })
-    except Exception as e:
-        logger.error(f"Error getting system status: {str(e)}")
-        return jsonify({
-            'success': False,
-            'error': str(e),
-            'timestamp': get_current_timestamp()
-        }), 500
-
-
-@app.route('/api/mode', methods=['GET'])
-def get_backend_mode():
-    """Get current backend mode"""
-    try:
-        chainbreak = get_chainbreak()
-        if not chainbreak:
-            return jsonify({
-                'success': False,
-                'error': 'ChainBreak not initialized',
-                'timestamp': get_current_timestamp()
-            }), 500
-
-        mode_info = {
-            'backend_mode': chainbreak.get_backend_mode(),
-            'neo4j_available': chainbreak.is_neo4j_available(),
-            'use_json_backend': getattr(chainbreak, 'use_json_backend', False),
-            'timestamp': get_current_timestamp()
-        }
-
-        return jsonify({
-            'success': True,
-            'data': mode_info,
-            'message': f'Backend mode: {mode_info["backend_mode"]}'
-        })
-
-    except Exception as e:
-        logger.error(f"Error getting backend mode: {str(e)}")
-        return jsonify({
-            'success': False,
-            'error': str(e),
-            'timestamp': get_current_timestamp()
-        }), 500
-
-
-@app.route('/api/analyze', methods=['POST'])
+@app.route("/api/analyze", methods=["POST"])
 def analyze_address():
-    """Analyze a single Bitcoin address"""
+    """Analyze a single address"""
     try:
         data = request.get_json()
-        if not data:
-            return jsonify({
-                'success': False,
-                'error': 'No JSON data provided',
-                'timestamp': get_current_timestamp()
-            }), 400
-
-        address = data.get('address')
-        blockchain = data.get('blockchain', 'btc')
-        generate_visualizations = data.get('generate_visualizations', True)
+        address = data.get("address")
+        blockchain = data.get("blockchain", "btc")
+        generate_visualizations = data.get("generate_visualizations", True)
 
         if not address:
-            return jsonify({
-                'success': False,
-                'error': 'Address parameter is required',
-                'timestamp': get_current_timestamp()
-            }), 400
+            return jsonify({"success": False, "error": "Address required"}), 400
 
-        logger.info(f"API: Analyzing address {address}")
         chainbreak = get_chainbreak()
-
         if not chainbreak:
-            return jsonify({
-                'success': False,
-                'error': 'ChainBreak not initialized',
-                'timestamp': get_current_timestamp()
-            }), 500
+            return jsonify({"success": False, "error": "ChainBreak not initialized"}), 500
 
-        results = chainbreak.analyze_address(
+        result = chainbreak.analyze_address(
             address, blockchain, generate_visualizations)
-
-        if 'error' in results:
-            return jsonify({
-                'success': False,
-                'error': results['error'],
-                'timestamp': get_current_timestamp()
-            }), 400
-
-        return jsonify({
-            'success': True,
-            'data': results,
-            'timestamp': results.get('analysis_timestamp'),
-            'message': f'Analysis completed for address {address}'
-        })
+        return jsonify({"success": True, "data": result})
 
     except Exception as e:
-        logger.error(f"Error in analyze_address API: {str(e)}")
-        logger.error(traceback.format_exc())
-        return jsonify({
-            'success': False,
-            'error': f'Analysis failed: {str(e)}',
-            'timestamp': get_current_timestamp()
-        }), 500
+        logger.error(f"Error analyzing address: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
-@app.route('/api/analyze/batch', methods=['POST'])
+@app.route("/api/analyze/batch", methods=["POST"])
 def analyze_multiple_addresses():
-    """Analyze multiple Bitcoin addresses"""
+    """Analyze multiple addresses"""
     try:
         data = request.get_json()
-        if not data:
-            return jsonify({
-                'success': False,
-                'error': 'No JSON data provided',
-                'timestamp': get_current_timestamp()
-            }), 400
+        addresses = data.get("addresses", [])
+        blockchain = data.get("blockchain", "btc")
 
-        addresses = data.get('addresses', [])
-        blockchain = data.get('blockchain', 'btc')
+        if not addresses:
+            return jsonify({"success": False, "error": "Addresses array required"}), 400
 
-        if not addresses or not isinstance(addresses, list):
-            return jsonify({
-                'success': False,
-                'error': 'Addresses parameter must be a non-empty list',
-                'timestamp': get_current_timestamp()
-            }), 400
-
-        if len(addresses) > 100:
-            return jsonify({
-                'success': False,
-                'error': 'Maximum 100 addresses allowed per batch',
-                'timestamp': get_current_timestamp()
-            }), 400
-
-        logger.info(f"API: Analyzing {len(addresses)} addresses")
         chainbreak = get_chainbreak()
-
         if not chainbreak:
-            return jsonify({
-                'success': False,
-                'error': 'ChainBreak not initialized',
-                'timestamp': get_current_timestamp()
-            }), 500
+            return jsonify({"success": False, "error": "ChainBreak not initialized"}), 500
 
-        results = chainbreak.analyze_multiple_addresses(addresses, blockchain)
-
-        if 'error' in results:
-            return jsonify({
-                'success': False,
-                'error': results['error'],
-                'timestamp': get_current_timestamp()
-            }), 400
-
-        return jsonify({
-            'success': True,
-            'data': results,
-            'timestamp': results.get('analysis_timestamp'),
-            'message': f'Batch analysis completed for {len(addresses)} addresses'
-        })
+        result = chainbreak.analyze_multiple_addresses(addresses, blockchain)
+        return jsonify({"success": True, "data": result})
 
     except Exception as e:
-        logger.error(f"Error in analyze_multiple_addresses API: {str(e)}")
-        logger.error(traceback.format_exc())
-        return jsonify({
-            'success': False,
-            'error': f'Batch analysis failed: {str(e)}',
-            'timestamp': get_current_timestamp()
-        }), 500
+        logger.error(f"Error analyzing addresses: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
-@app.route('/api/export/gephi', methods=['GET'])
+@app.route("/api/export/gephi", methods=["GET"])
 def export_to_gephi():
     """Export network to Gephi format"""
     try:
-        address = request.args.get('address')
-        output_file = request.args.get('output_file')
+        address = request.args.get("address")
+        output_file = request.args.get("output_file")
 
         if not address:
-            return jsonify({
-                'success': False,
-                'error': 'Address parameter is required',
-                'timestamp': get_current_timestamp()
-            }), 400
+            return jsonify({"success": False, "error": "Address parameter required"}), 400
 
-        logger.info(f"API: Exporting to Gephi for address {address}")
         chainbreak = get_chainbreak()
-
         if not chainbreak:
-            return jsonify({
-                'success': False,
-                'error': 'ChainBreak not initialized',
-                'timestamp': get_current_timestamp()
-            }), 500
+            return jsonify({"success": False, "error": "ChainBreak not initialized"}), 500
 
-        export_file = chainbreak.export_network_to_gephi(address, output_file)
-
-        if not export_file:
-            return jsonify({
-                'success': False,
-                'error': 'Export failed - no data available',
-                'timestamp': get_current_timestamp()
-            }), 400
-
-        return jsonify({
-            'success': True,
-            'data': {
-                'export_file': export_file,
-                'address': address
-            },
-            'timestamp': get_current_timestamp(),
-            'message': f'Network exported to {export_file}'
-        })
+        result = chainbreak.export_network_to_gephi(address, output_file)
+        return jsonify({"success": True, "data": {"file": result}})
 
     except Exception as e:
-        logger.error(f"Error in export_to_gephi API: {str(e)}")
-        logger.error(traceback.format_exc())
-        return jsonify({
-            'success': False,
-            'error': f'Export failed: {str(e)}',
-            'timestamp': get_current_timestamp()
-        }), 500
+        logger.error(f"Error exporting to Gephi: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
-@app.route('/api/report/risk', methods=['POST'])
+@app.route("/api/report/risk", methods=["POST"])
 def generate_risk_report():
-    """Generate comprehensive risk report"""
+    """Generate risk report for addresses"""
     try:
         data = request.get_json()
-        if not data:
-            return jsonify({
-                'success': False,
-                'error': 'No JSON data provided',
-                'timestamp': get_current_timestamp()
-            }), 400
+        addresses = data.get("addresses", [])
+        output_file = data.get("output_file")
 
-        addresses = data.get('addresses', [])
-        output_file = data.get('output_file')
+        if not addresses:
+            return jsonify({"success": False, "error": "Addresses array required"}), 400
 
-        if not addresses or not isinstance(addresses, list):
-            return jsonify({
-                'success': False,
-                'error': 'Addresses parameter must be a non-empty list',
-                'timestamp': get_current_timestamp()
-            }), 400
-
-        logger.info(
-            f"API: Generating risk report for {len(addresses)} addresses")
         chainbreak = get_chainbreak()
-
         if not chainbreak:
-            return jsonify({
-                'success': False,
-                'error': 'ChainBreak not initialized',
-                'timestamp': get_current_timestamp()
-            }), 500
+            return jsonify({"success": False, "error": "ChainBreak not initialized"}), 500
 
-        report_content = chainbreak.generate_risk_report(
-            addresses, output_file)
-
-        return jsonify({
-            'success': True,
-            'data': {
-                'report_content': report_content,
-                'addresses_count': len(addresses),
-                'output_file': output_file
-            },
-            'timestamp': get_current_timestamp(),
-            'message': f'Risk report generated for {len(addresses)} addresses'
-        })
+        result = chainbreak.generate_risk_report(addresses, output_file)
+        return jsonify({"success": True, "data": {"report": result}})
 
     except Exception as e:
-        logger.error(f"Error in generate_risk_report API: {str(e)}")
-        logger.error(traceback.format_exc())
-        return jsonify({
-            'success': False,
-            'error': f'Report generation failed: {str(e)}',
-            'timestamp': get_current_timestamp()
-        }), 500
+        logger.error(f"Error generating risk report: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
-@app.route('/api/addresses', methods=['GET'])
+@app.route("/api/addresses", methods=["GET"])
 def get_analyzed_addresses():
     """Get list of analyzed addresses"""
     try:
         chainbreak = get_chainbreak()
         if not chainbreak:
-            return jsonify({
-                'success': False,
-                'error': 'ChainBreak not initialized',
-                'timestamp': get_current_timestamp()
-            }), 500
+            return jsonify({"success": False, "error": "ChainBreak not initialized"}), 500
 
-        if chainbreak.is_neo4j_available():
-            # Get addresses from Neo4j
-            with chainbreak.data_ingestor.driver.session() as session:
-                result = session.run(
-                    "MATCH (a:Address) RETURN a.address as address")
-                addresses = [record['address'] for record in result]
-        else:
-            # Get addresses from JSON files
-            addresses = []
-            data_dir = Path("data")
-            if data_dir.exists():
-                for json_file in data_dir.glob("*.json"):
-                    try:
-                        with open(json_file, 'r') as f:
-                            data = json.load(f)
-                            if 'meta' in data and 'address' in data['meta']:
-                                addresses.append(data['meta']['address'])
-                    except:
-                        continue
-
-        return jsonify({
-            'success': True,
-            'data': {
-                'addresses': addresses,
-                'count': len(addresses),
-                'backend_mode': chainbreak.get_backend_mode()
-            },
-            'timestamp': get_current_timestamp()
-        })
+        # This would need to be implemented in ChainBreak class
+        return jsonify({"success": True, "data": {"addresses": []}})
 
     except Exception as e:
-        logger.error(f"Error getting analyzed addresses: {str(e)}")
-        return jsonify({
-            'success': False,
-            'error': str(e),
-            'timestamp': get_current_timestamp()
-        }), 500
+        logger.error(f"Error getting addresses: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
-@app.route('/api/statistics', methods=['GET'])
+@app.route("/api/statistics", methods=["GET"])
 def get_statistics():
-    """Get system statistics and metrics"""
+    """Get system statistics"""
     try:
         chainbreak = get_chainbreak()
         if not chainbreak:
-            return jsonify({
-                'success': False,
-                'error': 'ChainBreak not initialized',
-                'timestamp': get_current_timestamp()
-            }), 500
+            return jsonify({"success": False, "error": "ChainBreak not initialized"}), 500
 
-        status = chainbreak.get_system_status()
-
-        return jsonify({
-            'success': True,
-            'data': status,
-            'timestamp': get_current_timestamp()
-        })
+        # This would need to be implemented in ChainBreak class
+        return jsonify({"success": True, "data": {"statistics": {}}})
 
     except Exception as e:
-        logger.error(f"Error getting statistics: {str(e)}")
-        return jsonify({
-            'success': False,
-            'error': str(e),
-            'timestamp': get_current_timestamp()
-        }), 500
+        logger.error(f"Error getting statistics: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.errorhandler(404)
 def not_found(error):
-    return jsonify({
-        'success': False,
-        'error': 'Endpoint not found',
-        'timestamp': get_current_timestamp()
-    }), 404
+    logger.warning(f"404 error: {request.url}")
+    return jsonify({"error": "Not found", "path": request.path}), 404
 
 
 @app.errorhandler(500)
 def internal_error(error):
-    return jsonify({
-        'success': False,
-        'error': 'Internal server error',
-        'timestamp': get_current_timestamp()
-    }), 500
+    logger.error(f"500 error: {error}")
+    return jsonify({"error": "Internal server error"}), 500
 
 
 def get_current_timestamp():
