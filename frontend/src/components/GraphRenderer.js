@@ -2,9 +2,10 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as d3 from 'd3';
 import { motion } from 'framer-motion';
-import { Loader2, AlertCircle, Play, RotateCcw, Download, Expand, Shrink } from 'lucide-react';
+import { Loader2, AlertCircle, Play, RotateCcw, Expand, Shrink, Image } from 'lucide-react';
 import logger from '../utils/logger';
 import { Plus, Minus } from 'lucide-react';
+import { saveSvgAsPng } from 'save-svg-as-png';
 const GraphRenderer = ({ graphData, onNodeClick, className = '' }) => {
   const containerRef = useRef(null);
   const svgRef = useRef(null);
@@ -225,34 +226,29 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '' }) => {
     }
   }, [graphData, initializeD3]);
 
-  const exportGraph = useCallback(() => {
-    if (!graphRef.current) return;
+  const exportAsImage = useCallback(() => {
+    if (!svgRef.current) return;
     try {
-      const graph = graphRef.current;
-      const exportData = {
-        nodes: graph.nodes.map(n => ({ id: n.id, ...n })),
-        edges: graph.edges.map(e => ({
-          source: typeof e.source === 'object' ? e.source.id : e.source,
-          target: typeof e.target === 'object' ? e.target.id : e.target,
-          ...e
-        })),
-        communities: communities || null
-      };
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'graph_export.json';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      logger.info('Graph exported successfully');
+      const svgElement = svgRef.current.node();
+      if (!svgElement) {
+        logger.warn('No SVG element found for export');
+        return;
+      }
+      
+      // Get the SVG element and save using saveSvgAsPng.js
+      saveSvgAsPng(svgElement, "chainbreak_graph.png", {
+        backgroundColor: '#111827', // Match the dark background
+        scale: 2, // Higher resolution
+        width: svgElement.clientWidth,
+        height: svgElement.clientHeight
+      });
+      
+      logger.info('Graph exported as PNG image successfully');
     } catch (err) {
-      logger.error('Failed to export graph', err);
-      setError(`Export failed: ${err.message}`);
+      logger.error('Failed to export graph as image', err);
+      setError(`Image export failed: ${err.message}`);
     }
-  }, [communities]);
+  }, []);
 
   const zoomIn = useCallback(() => {
     if (!svgRef.current) return;
@@ -454,12 +450,12 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '' }) => {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={exportGraph}
+          onClick={exportAsImage}
           disabled={isLoading || !containerReady}
-          className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          <Download className="w-4 h-4" />
-          Export
+          <Image className="w-4 h-4" />
+          Export PNG
         </motion.button>
         
         {/* Zoom controls */}
