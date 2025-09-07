@@ -17,6 +17,7 @@ from .anomaly_detection import (
 )
 from .risk_scoring import RiskScorer
 from .visualization import NetworkVisualizer, GephiExporter, ChartGenerator
+from .threat_intelligence import ThreatIntelligenceManager
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +42,9 @@ class ChainBreak:
 
         # Initialize components with graceful fallback
         self._initialize_components()
+        
+        # Initialize threat intelligence manager
+        self.threat_intel_manager = ThreatIntelligenceManager(self.config.get('threat_intelligence', {}))
 
         logger.info(
             f"ChainBreak initialized successfully in {self.backend_mode} mode")
@@ -96,23 +100,35 @@ class ChainBreak:
         )
 
     def _initialize_components(self):
-        """Initialize all ChainBreak components with graceful fallback"""
-        if self.use_json_backend:
-            logger.info("Forced JSON backend mode - skipping Neo4j connection")
-            self._initialize_json_backend()
-            return
-
-        try:
-            logger.info("Attempting to connect to Neo4j...")
-            self._initialize_neo4j_backend()
-            self.backend_mode = "neo4j"
-            logger.info("Successfully initialized Neo4j backend")
-
-        except Exception as e:
-            logger.warning(f"Neo4j connection failed: {str(e)}")
-            logger.info("Falling back to JSON backend mode")
-            self._initialize_json_backend()
-            self.backend_mode = "json"
+        """Initialize all ChainBreak components with enhanced Neo4j prioritization"""
+        # Always try Neo4j first unless explicitly disabled
+        if not self.use_json_backend:
+            try:
+                logger.info("Attempting to connect to Neo4j...")
+                self._initialize_neo4j_backend()
+                self.backend_mode = "neo4j"
+                logger.info("✅ Successfully initialized Neo4j backend")
+                return
+            except Exception as e:
+                logger.warning(f"❌ Neo4j connection failed: {str(e)}")
+                logger.info("🔄 Attempting Neo4j connection retry...")
+                
+                # Retry Neo4j connection once
+                try:
+                    import time
+                    time.sleep(2)  # Brief delay before retry
+                    self._initialize_neo4j_backend()
+                    self.backend_mode = "neo4j"
+                    logger.info("✅ Successfully initialized Neo4j backend on retry")
+                    return
+                except Exception as retry_e:
+                    logger.warning(f"❌ Neo4j retry failed: {str(retry_e)}")
+        
+        # Fallback to JSON backend
+        logger.info("🔄 Falling back to JSON backend mode")
+        self._initialize_json_backend()
+        self.backend_mode = "json"
+        logger.warning("⚠️ Running in limited JSON backend mode - some features disabled")
 
     def _initialize_neo4j_backend(self):
         """Initialize Neo4j-based backend"""
@@ -245,6 +261,35 @@ class ChainBreak:
                     'risk_level': 'UNKNOWN',
                     'factors': {'message': 'Risk scoring not available in JSON mode'}
                 }
+            
+            # Step 3.5: Enhance risk score with threat intelligence
+            threat_intel_result = None
+            if self.threat_intel_manager.is_available():
+                logger.info("Step 3.5: Checking address against threat intelligence...")
+                threat_intel_result = self.threat_intel_manager.check_address(address)
+                
+                if threat_intel_result.get("blacklisted", False):
+                    logger.warning(f"Address {address} is blacklisted by threat intelligence!")
+                    # Enhance risk score with threat intelligence
+                    enhanced_risk = self.threat_intel_manager.enhance_risk_score(
+                        address, 
+                        risk_score.get('overall_score', 0) if risk_score else 0,
+                        risk_score.get('risk_level', 'UNKNOWN') if risk_score else 'UNKNOWN'
+                    )
+                    risk_score = {
+                        'overall_score': enhanced_risk.get('final_risk_score', 0),
+                        'risk_level': enhanced_risk.get('final_risk_level', 'UNKNOWN'),
+                        'threat_intel_enhanced': True,
+                        'threat_intel_result': threat_intel_result,
+                        'enhancement_details': enhanced_risk
+                    }
+                else:
+                    logger.info(f"Address {address} is clean according to threat intelligence")
+                    if risk_score:
+                        risk_score['threat_intel_enhanced'] = True
+                        risk_score['threat_intel_result'] = threat_intel_result
+            else:
+                logger.info("Step 3.5: Threat intelligence not available")
 
             # Step 4: Generate visualizations if requested and available
             visualizations = {}
@@ -284,8 +329,9 @@ class ChainBreak:
                 'ingestion_success': ingestion_success,
                 'anomalies': anomalies,
                 'risk_score': risk_score,
+                'threat_intelligence': threat_intel_result,
                 'visualizations': visualizations,
-                'summary': self._generate_analysis_summary(address, anomalies, risk_score)
+                'summary': self._generate_analysis_summary(address, anomalies, risk_score, threat_intel_result)
             }
 
             logger.info(
@@ -440,7 +486,7 @@ class ChainBreak:
             return {}
 
     def _generate_analysis_summary(self, address: str, anomalies: Dict[str, Any],
-                                   risk_score: Dict[str, Any]) -> Dict[str, Any]:
+                                   risk_score: Dict[str, Any], threat_intel_result: Dict[str, Any] = None) -> Dict[str, Any]:
         """Generate analysis summary"""
         summary = {
             'address': address,
@@ -451,9 +497,17 @@ class ChainBreak:
             },
             'risk_summary': {
                 'overall_score': risk_score.get('overall_score', 0) if risk_score else 0,
-                'risk_level': risk_score.get('risk_level', 'UNKNOWN') if risk_score else 'UNKNOWN'
+                'risk_level': risk_score.get('risk_level', 'UNKNOWN') if risk_score else 'UNKNOWN',
+                'threat_intel_enhanced': risk_score.get('threat_intel_enhanced', False) if risk_score else False
             },
-            'recommendations': self._generate_recommendations(anomalies, risk_score)
+            'threat_intelligence_summary': {
+                'available': threat_intel_result.get('available', False) if threat_intel_result else False,
+                'blacklisted': threat_intel_result.get('blacklisted', False) if threat_intel_result else False,
+                'confidence': threat_intel_result.get('confidence', 0.0) if threat_intel_result else 0.0,
+                'risk_level': threat_intel_result.get('risk_level', 'unknown') if threat_intel_result else 'unknown',
+                'sources': threat_intel_result.get('blacklisted_sources', []) if threat_intel_result else []
+            },
+            'recommendations': self._generate_recommendations(anomalies, risk_score, threat_intel_result)
         }
 
         return summary
@@ -507,7 +561,7 @@ class ChainBreak:
         }
 
     def _generate_recommendations(self, anomalies: Dict[str, Any],
-                                  risk_score: Dict[str, Any]) -> List[str]:
+                                  risk_score: Dict[str, Any], threat_intel_result: Dict[str, Any] = None) -> List[str]:
         """Generate recommendations based on analysis results"""
         recommendations = []
 
@@ -517,6 +571,18 @@ class ChainBreak:
             return recommendations
 
         risk_level = risk_score.get('risk_level', 'UNKNOWN')
+
+        # Check threat intelligence results first
+        if threat_intel_result and threat_intel_result.get('blacklisted', False):
+            recommendations.append(
+                "🚨 CRITICAL: Address is blacklisted by threat intelligence sources")
+            recommendations.append(
+                "Immediate investigation required - address reported for illicit activity")
+            recommendations.append(
+                "Consider reporting to relevant authorities")
+            recommendations.append(
+                f"Blacklisted by sources: {', '.join(threat_intel_result.get('blacklisted_sources', []))}")
+            return recommendations
 
         if risk_level in ['CRITICAL', 'HIGH']:
             recommendations.append(
@@ -535,6 +601,14 @@ class ChainBreak:
         if anomalies.get('volume_anomalies'):
             recommendations.append(
                 "Volume anomalies detected - investigate unusual transaction amounts")
+
+        # Add threat intelligence status
+        if threat_intel_result and threat_intel_result.get('available', False):
+            recommendations.append(
+                "✅ Address verified clean by threat intelligence sources")
+        elif threat_intel_result and not threat_intel_result.get('available', False):
+            recommendations.append(
+                "⚠️ Threat intelligence not available - manual verification recommended")
 
         if not recommendations:
             recommendations.append(
@@ -556,6 +630,53 @@ class ChainBreak:
         """Get current timestamp in ISO format"""
         from datetime import datetime
         return datetime.now().isoformat()
+
+    def check_illicit_addresses_in_graph(self, graph_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Check all addresses in a graph for illicit activity using threat intelligence.
+        
+        Args:
+            graph_data: Graph data containing nodes and edges
+            
+        Returns:
+            Dictionary with illicit address analysis
+        """
+        if not self.threat_intel_manager.is_available():
+            return {
+                "available": False,
+                "error": "Threat intelligence not available",
+                "illicit_addresses": [],
+                "total_addresses": 0
+            }
+        
+        try:
+            logger.info("Checking addresses in graph for illicit activity...")
+            result = self.threat_intel_manager.get_illicit_addresses_in_graph(graph_data)
+            
+            if result.get("available", False):
+                illicit_count = len(result.get("illicit_addresses", []))
+                total_count = result.get("total_addresses", 0)
+                logger.info(f"Found {illicit_count} illicit addresses out of {total_count} total addresses")
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error checking illicit addresses in graph: {e}")
+            return {
+                "available": False,
+                "error": str(e),
+                "illicit_addresses": [],
+                "total_addresses": 0
+            }
+
+    def get_threat_intelligence_status(self) -> Dict[str, Any]:
+        """
+        Get threat intelligence system status.
+        
+        Returns:
+            Dictionary with threat intelligence status information
+        """
+        return self.threat_intel_manager.get_source_status()
 
     def close(self):
         """Cleanup resources"""

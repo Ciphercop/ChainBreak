@@ -7,7 +7,7 @@ import logger from '../utils/logger';
 import { Plus, Minus } from 'lucide-react';
 import { saveSvgAsPng } from 'save-svg-as-png';
 import toast from 'react-hot-toast';
-const GraphRenderer = ({ graphData, onNodeClick, className = '' }) => {
+const GraphRenderer = ({ graphData, onNodeClick, className = '', illicitAddresses = [] }) => {
   const containerRef = useRef(null);
   const svgRef = useRef(null);
   const simulationRef = useRef(null);
@@ -139,6 +139,12 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '' }) => {
           return d.size || 8;
         })
         .attr('fill', d => {
+          // Check if address is illicit
+          const isIllicit = illicitAddresses.some(illicit => illicit.address === d.id);
+          if (isIllicit) {
+            return '#ef4444'; // red for illicit addresses
+          }
+          
           if (d.type === 'address') {
             if (d.balance > 0) return '#10b981'; // green for addresses with balance
             return '#6b7280'; // gray for addresses without balance
@@ -147,6 +153,12 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '' }) => {
           return d.color || '#6366f1';
         })
         .attr('stroke', d => {
+          // Check if address is illicit
+          const isIllicit = illicitAddresses.some(illicit => illicit.address === d.id);
+          if (isIllicit) {
+            return '#dc2626'; // darker red stroke for illicit addresses
+          }
+          
           if (d.type === 'address' && d.balance > 0) return '#059669';
           if (d.type === 'transaction') return '#1d4ed8';
           return '#111827';
@@ -172,13 +184,34 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '' }) => {
       
       // Add tooltips with rich information
       nodes.append('title').text(d => {
+        const isIllicit = illicitAddresses.some(illicit => illicit.address === d.id);
+        let tooltip = `${d.label || d.id}\n`;
+        
+        if (isIllicit) {
+          const illicitData = illicitAddresses.find(illicit => illicit.address === d.id);
+          tooltip += `🚨 ILLICIT ADDRESS 🚨\n`;
+          tooltip += `Risk Level: ${illicitData.risk_level?.toUpperCase()}\n`;
+          tooltip += `Confidence: ${(illicitData.confidence * 100).toFixed(1)}%\n`;
+          tooltip += `Sources: ${illicitData.sources.join(', ')}\n`;
+          
+          if (illicitData.illicit_activity_analysis) {
+            tooltip += `Primary Activity: ${illicitData.illicit_activity_analysis.primary_activity_type?.replace(/_/g, ' ').toUpperCase()}\n`;
+            if (illicitData.illicit_activity_analysis.secondary_activities?.length > 0) {
+              tooltip += `Secondary: ${illicitData.illicit_activity_analysis.secondary_activities.map(sa => sa.type.replace(/_/g, ' ')).join(', ')}\n`;
+            }
+            if (illicitData.illicit_activity_analysis.risk_indicators?.length > 0) {
+              tooltip += `Evidence: ${illicitData.illicit_activity_analysis.risk_indicators.slice(0, 2).join(', ')}\n`;
+            }
+          }
+        }
+        
         if (d.type === 'address') {
-          return `${d.label || d.id}\nType: Address\nBalance: ${(d.balance || 0) / 100000000} BTC\nTransactions: ${d.transaction_count || 0}`;
+          tooltip += `Type: Address\nBalance: ${(d.balance || 0) / 100000000} BTC\nTransactions: ${d.transaction_count || 0}`;
+        } else if (d.type === 'transaction') {
+          tooltip += `Type: Transaction\nValue: ${(d.total_input_value || 0) / 100000000} BTC\nFee: ${(d.fee || 0) / 100000000} BTC`;
         }
-        if (d.type === 'transaction') {
-          return `${d.label || d.id}\nType: Transaction\nValue: ${(d.total_input_value || 0) / 100000000} BTC\nFee: ${(d.fee || 0) / 100000000} BTC`;
-        }
-        return d.label || d.id;
+        
+        return tooltip;
       });
       
       nodes.on('click', (_, d) => {
@@ -586,6 +619,10 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '' }) => {
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 rounded-full bg-gray-500"></div>
               <span className="text-gray-300">Address (no balance)</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+              <span className="text-gray-300">🚨 Illicit Address</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 rounded-full bg-blue-500"></div>

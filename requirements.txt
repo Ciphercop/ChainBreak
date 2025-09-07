@@ -14,3 +14,54 @@ pyyaml
 requests
 python-dotenv
 gephistreamer
+
+# Web scraping and parsing
+beautifulsoup4
+lxml
+html5lib
+
+# DNS resolution for threat intelligence
+dnspython
+
+# Development and testing
+pytest
+pytest-cov
+black
+flake8
+mypy
+
+# Docker and containerization
+docker
+docker-compose
+
+# Logging and monitoring
+colorlog
+structlog
+
+# Data validation and serialization
+pydantic
+marshmallow
+
+# HTTP client enhancements
+urllib3
+httpx
+
+# Configuration management
+python-decouple
+configparser
+
+# Async support (optional)
+aiohttp
+asyncio
+
+# Security and cryptography
+cryptography
+pycryptodome
+
+# Database drivers
+psycopg2-binary
+sqlalchemy
+
+# API documentation
+flask-restx
+swagger-ui-bundle

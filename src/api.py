@@ -346,6 +346,66 @@ def get_statistics():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+@app.route("/api/threat-intelligence/status", methods=["GET"])
+def get_threat_intelligence_status():
+    """Get threat intelligence system status"""
+    try:
+        chainbreak = get_chainbreak()
+        if not chainbreak:
+            return jsonify({"success": False, "error": "ChainBreak not initialized"}), 500
+
+        status = chainbreak.get_threat_intelligence_status()
+        return jsonify({"success": True, "data": status})
+
+    except Exception as e:
+        logger.error(f"Error getting threat intelligence status: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/threat-intelligence/check", methods=["POST"])
+def check_address_threat_intelligence():
+    """Check an address against threat intelligence sources"""
+    try:
+        data = request.get_json()
+        address = data.get("address")
+
+        if not address:
+            return jsonify({"success": False, "error": "Address required"}), 400
+
+        chainbreak = get_chainbreak()
+        if not chainbreak:
+            return jsonify({"success": False, "error": "ChainBreak not initialized"}), 500
+
+        result = chainbreak.threat_intel_manager.check_address(address)
+        return jsonify({"success": True, "data": result})
+
+    except Exception as e:
+        logger.error(f"Error checking address threat intelligence: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/threat-intelligence/check-graph", methods=["POST"])
+def check_graph_illicit_addresses():
+    """Check all addresses in a graph for illicit activity"""
+    try:
+        data = request.get_json()
+        graph_data = data.get("graph_data")
+
+        if not graph_data:
+            return jsonify({"success": False, "error": "Graph data required"}), 400
+
+        chainbreak = get_chainbreak()
+        if not chainbreak:
+            return jsonify({"success": False, "error": "ChainBreak not initialized"}), 500
+
+        result = chainbreak.check_illicit_addresses_in_graph(graph_data)
+        return jsonify({"success": True, "data": result})
+
+    except Exception as e:
+        logger.error(f"Error checking graph illicit addresses: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 @app.errorhandler(404)
 def not_found(error):
     logger.warning(f"404 error: {request.url}")

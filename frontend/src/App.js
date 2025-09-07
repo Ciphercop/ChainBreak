@@ -9,6 +9,7 @@ import GraphRenderer from './components/GraphRenderer';
 import GraphList from './components/GraphList';
 import NodeDetails from './components/NodeDetails';
 import SystemStatus from './components/SystemStatus';
+import ThreatIntelligencePanel from './components/ThreatIntelligencePanel';
 import toast from 'react-hot-toast';
 
 const App = () => {
@@ -20,6 +21,7 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('graph');
+  const [threatIntelData, setThreatIntelData] = useState(null);
 
   const checkBackendMode = useCallback(async () => {
     try {
@@ -198,6 +200,11 @@ const App = () => {
     await initializeApp();
   }, [initializeApp]);
 
+  const handleThreatIntelUpdate = useCallback((data) => {
+    setThreatIntelData(data);
+    logger.info('Threat intelligence data updated', data);
+  }, []);
+
   useEffect(() => {
     initializeApp();
   }, [initializeApp]);
@@ -299,6 +306,11 @@ const App = () => {
               onRefresh={loadAvailableGraphs}
               isLoading={isLoading}
             />
+            
+            <ThreatIntelligencePanel
+              graphData={currentGraph}
+              onThreatIntelUpdate={handleThreatIntelUpdate}
+            />
           </div>
 
           <div className="lg:col-span-3">
@@ -322,6 +334,7 @@ const App = () => {
                     graphData={currentGraph}
                     onNodeClick={handleNodeClick}
                     className="w-full"
+                    illicitAddresses={threatIntelData?.illicitAddresses || []}
                   />
                 ) : (
                   <div className="text-center py-12">
