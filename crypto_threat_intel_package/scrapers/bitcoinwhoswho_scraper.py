@@ -180,8 +180,8 @@ class BitcoinWhosWhoScraper:
             
         except Exception as e:
             logger.error(f"API search failed for {address}: {str(e)}")
-            # Fallback to scraping
-            return self._search_via_scraping(address)
+            # Return None when no real data is available
+            return None
     
     def _search_via_scraping(self, address: str) -> BitcoinWhosWhoResult:
         """Search using web scraping as fallback with enhanced data sources."""
@@ -213,10 +213,7 @@ class BitcoinWhosWhoScraper:
             except Exception as e:
                 logger.warning(f"BitcoinWhosWho scraping error: {e}")
             
-            # 2. Additional external data sources
-            external_data = self._gather_external_data(address)
-            if external_data:
-                results.append(external_data)
+            # External data gathering removed - only real API data is used
             
             # 3. Combine results from all sources
             if results:
@@ -249,7 +246,8 @@ class BitcoinWhosWhoScraper:
                 error=str(e)
             )
     
-    def _gather_external_data(self, address: str) -> Optional[BitcoinWhosWhoResult]:
+    # External data gathering removed - only real API data is used
+    def _gather_external_data_removed(self, address: str) -> Optional[BitcoinWhosWhoResult]:
         """Gather data from external sources to supplement BitcoinWhosWho."""
         try:
             tags = []
@@ -728,32 +726,7 @@ class BitcoinWhosWhoScraper:
                     else:
                         score = max(score, indicator_score)
             
-            # 7. Special handling for known malicious addresses
-            known_malicious_addresses = {
-                '13AM4VW2dhxYgXeQepoHkHSQuy6NgaEb94': {
-                    'score': 0.95,
-                    'tags': ['wannacry', 'ransomware', 'malware', 'critical'],
-                    'scam_reports': [{
-                        'title': 'WannaCry Ransomware Address',
-                        'description': 'This address is associated with the WannaCry ransomware attack that encrypted data on infected systems and demanded ransom payments in Bitcoin.',
-                        'category': 'ransomware',
-                        'severity': 'critical',
-                        'reported_at': datetime.now().isoformat(),
-                        'reporter': 'security_research',
-                        'source_url': 'https://www.secureworks.jp/research/wcry-ransomware-analysis',
-                        'confidence_score': 0.95
-                    }]
-                }
-            }
-            
-            if address in known_malicious_addresses:
-                malicious_data = known_malicious_addresses[address]
-                score = malicious_data['score']
-                tags.extend(malicious_data['tags'])
-                scam_reports.extend(malicious_data['scam_reports'])
-                logger.info(f"Applied known malicious address data for {address}")
-            
-            # 8. Calculate confidence based on extracted data
+            # 7. Calculate confidence based on extracted data
             confidence = self._calculate_confidence(score, scam_reports, website_appearances, tags)
             
             # 9. Log detailed extraction results

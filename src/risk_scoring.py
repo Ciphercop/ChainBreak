@@ -86,14 +86,14 @@ class RiskScorer:
         """Get comprehensive address information from Neo4j"""
         query = """
         MATCH (a:Address {address: $address})
-        OPTIONAL MATCH (a)-[:SENT_FROM]->(t:Transaction)
+        OPTIONAL MATCH (a)-[:PARTICIPATED_IN]->(t:Transaction)
         WITH a, 
              count(t) as outgoing_tx_count,
              sum(t.value) as total_outgoing,
              avg(t.value) as avg_outgoing,
              min(t.timestamp) as first_outgoing,
              max(t.timestamp) as last_outgoing
-        OPTIONAL MATCH (a)<-[:SENT_TO]-(t2:Transaction)
+        OPTIONAL MATCH (a)<-[:PARTICIPATED_IN]-(t2:Transaction)
         WITH a, outgoing_tx_count, total_outgoing, avg_outgoing, first_outgoing, last_outgoing,
              count(t2) as incoming_tx_count,
              sum(t2.value) as total_incoming,
@@ -104,7 +104,6 @@ class RiskScorer:
                a.balance as balance,
                a.total_received as total_received,
                a.total_sent as total_sent,
-               a.transaction_count as transaction_count,
                outgoing_tx_count,
                total_outgoing,
                avg_outgoing,
@@ -188,8 +187,10 @@ class RiskScorer:
         try:
             # Count layering patterns
             query = """
-            MATCH (a:Address {address: $address})-[:SENT_FROM]->(t1:Transaction)-[:SENT_TO]->(intermediate:Address),
-                  (intermediate)-[:SENT_FROM]->(t2:Transaction)-[:SENT_TO]->(final:Address)
+            MATCH (a:Address {address: $address})-[:PARTICIPATED_IN]->(t1:Transaction),
+                  (intermediate:Address)-[:PARTICIPATED_IN]->(t1),
+                  (intermediate)-[:PARTICIPATED_IN]->(t2:Transaction),
+                  (final:Address)-[:PARTICIPATED_IN]->(t2)
             WHERE t1.timestamp > datetime() - duration({hours: 24})
             AND t2.timestamp > datetime() - duration({hours: 24})
             AND intermediate <> final
@@ -222,7 +223,8 @@ class RiskScorer:
         try:
             # Count rapid transactions to multiple addresses
             query = """
-            MATCH (a:Address {address: $address})-[:SENT_FROM]->(t:Transaction)-[:SENT_TO]->(receiver:Address)
+            MATCH (a:Address {address: $address})-[:PARTICIPATED_IN]->(t:Transaction),
+                  (receiver:Address)-[:PARTICIPATED_IN]->(t)
             WHERE t.timestamp > datetime() - duration({hours: 1})
             WITH a, count(t) as tx_count, count(DISTINCT receiver) as unique_receivers
             WHERE tx_count >= 5 AND unique_receivers >= tx_count * 0.8
@@ -253,7 +255,7 @@ class RiskScorer:
         try:
             # Check for rapid transaction sequences
             query = """
-            MATCH (a:Address {address: $address})-[:SENT_FROM]->(t:Transaction)
+            MATCH (a:Address {address: $address})-[:PARTICIPATED_IN]->(t:Transaction)
             WHERE t.timestamp > datetime() - duration({hours: 24})
             WITH a, t
             ORDER BY t.timestamp ASC

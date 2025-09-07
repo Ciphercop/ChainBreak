@@ -63,10 +63,10 @@ class NetworkVisualizer:
             edge_widths = []
             
             for u, v, data in G.edges(data=True):
-                if data.get('type') == 'SENT_FROM':
+                if data.get('type') == 'PARTICIPATED_IN':
                     edge_colors.append('red')
                     edge_widths.append(2)
-                elif data.get('type') == 'SENT_TO':
+                elif data.get('type') == 'PARTICIPATED_IN':
                     edge_colors.append('blue')
                     edge_widths.append(2)
                 else:
@@ -102,7 +102,8 @@ class NetworkVisualizer:
             plt.savefig(output_file, dpi=300, bbox_inches='tight')
             logger.info(f"Network visualization saved to {output_file}")
             
-            plt.show()
+            # Close the plot to prevent GUI from opening
+            plt.close()
             return G
             
         except Exception as e:
@@ -118,24 +119,21 @@ class NetworkVisualizer:
         
         # Get transaction network data
         query = """
-        MATCH path = (a:Address {address: $address})
-        CALL apoc.path.subgraphNodes(path, {
-            maxLevel: $depth,
-            relationshipFilter: 'SENT_FROM|SENT_TO'
-        })
-        YIELD node
-        RETURN node
+        MATCH (a:Address {address: $address})-[:PARTICIPATED_IN]->(t:Transaction),
+              (receiver:Address)-[:PARTICIPATED_IN]->(t)
+        RETURN a.address as source, receiver.address as target, t.tx_hash as tx_hash, t.value as value
         LIMIT $max_nodes
         """
         
         try:
             with self.driver.session() as session:
-                result = session.run(query, address=address, depth=depth, max_nodes=max_nodes)
+                result = session.run(query, address=address, max_nodes=max_nodes)
                 
             # Alternative query if apoc is not available
             if not result.peek():
                 query = """
-                MATCH (a:Address {address: $address})-[:SENT_FROM]->(t:Transaction)-[:SENT_TO]->(receiver:Address)
+                MATCH (a:Address {address: $address})-[:PARTICIPATED_IN]->(t:Transaction),
+                      (receiver:Address)-[:PARTICIPATED_IN]->(t)
                 RETURN a.address as source, receiver.address as target, t.tx_hash as tx_hash, t.value as value
                 LIMIT $max_nodes
                 """
@@ -161,8 +159,8 @@ class NetworkVisualizer:
                     G.add_node(target, type='Address')
                     G.add_node(tx_hash, type='Transaction', value=value)
                     
-                    G.add_edge(source, tx_hash, type='SENT_FROM', value=value)
-                    G.add_edge(tx_hash, target, type='SENT_TO', value=value)
+                    G.add_edge(source, tx_hash, type='PARTICIPATED_IN', value=value)
+                    G.add_edge(tx_hash, target, type='PARTICIPATED_IN', value=value)
                     
         except Exception as e:
             logger.warning(f"Error with complex query, using simple approach: {str(e)}")
@@ -176,26 +174,28 @@ class NetworkVisualizer:
         try:
             # Get outgoing transactions
             query = """
-            MATCH (a:Address {address: $address})-[:SENT_FROM]->(t:Transaction)-[:SENT_TO]->(receiver:Address)
+            MATCH (a:Address {address: $address})-[:PARTICIPATED_IN]->(t:Transaction),
+                  (receiver:Address)-[:PARTICIPATED_IN]->(t)
             RETURN a.address as source, receiver.address as target, t.tx_hash as tx_hash, t.value as value
             LIMIT $max_nodes
             """
             
             with self.driver.session() as session:
                 result = session.run(query, address=address, max_nodes=max_nodes)
+                records = list(result)  # Convert to list to avoid consume error
                 
-            for record in result:
-                source = record['source']
-                target = record['target']
-                tx_hash = record['tx_hash']
-                value = record['value']
-                
-                G.add_node(source, type='Address')
-                G.add_node(target, type='Address')
-                G.add_node(tx_hash, type='Transaction', value=value)
-                
-                G.add_edge(source, tx_hash, type='SENT_FROM', value=value)
-                G.add_edge(tx_hash, target, type='SENT_TO', value=value)
+                for record in records:
+                    source = record['source']
+                    target = record['target']
+                    tx_hash = record['tx_hash']
+                    value = record['value']
+                    
+                    G.add_node(source, type='Address')
+                    G.add_node(target, type='Address')
+                    G.add_node(tx_hash, type='Transaction', value=value)
+                    
+                    G.add_edge(source, tx_hash, type='PARTICIPATED_IN', value=value)
+                    G.add_edge(tx_hash, target, type='PARTICIPATED_IN', value=value)
                 
         except Exception as e:
             logger.error(f"Error building simple network graph: {str(e)}")
@@ -224,7 +224,7 @@ class NetworkVisualizer:
                 plt.text(i, 0, f'{score:.3f}', ha='center', va='center', fontweight='bold')
             
             plt.tight_layout()
-            plt.show()
+            plt.close()
             
         except Exception as e:
             logger.error(f"Error creating risk heatmap: {str(e)}")
@@ -233,7 +233,7 @@ class NetworkVisualizer:
         """Create a timeline visualization of transactions"""
         try:
             query = """
-            MATCH (a:Address {address: $address})-[:SENT_FROM]->(t:Transaction)
+            MATCH (a:Address {address: $address})-[:PARTICIPATED_IN]->(t:Transaction)
             WHERE t.timestamp > datetime() - duration({hours: $time_window})
             RETURN t.tx_hash as tx_hash, t.value as value, t.timestamp as timestamp
             ORDER BY t.timestamp ASC
@@ -281,7 +281,7 @@ class NetworkVisualizer:
             plt.xticks(rotation=45)
             
             plt.tight_layout()
-            plt.show()
+            plt.close()
             
         except Exception as e:
             logger.error(f"Error creating transaction timeline: {str(e)}")
@@ -301,7 +301,7 @@ class GephiExporter:
             
             # Get comprehensive transaction data
             query = """
-            MATCH (sender:Address)-[:SENT_FROM]->(t:Transaction)-[:SENT_TO]->(receiver:Address)
+            MATCH (sender:Address)-[:PARTICIPATED_IN]->(t:Transaction)-[:PARTICIPATED_IN]->(receiver:Address)
             RETURN sender.address as source, receiver.address as target, 
                    t.value as value, t.timestamp as timestamp, t.tx_hash as tx_hash
             LIMIT $max_transactions
@@ -324,8 +324,8 @@ class GephiExporter:
                 G.add_node(target, type='Address', label=target)
                 G.add_node(tx_hash, type='Transaction', label=tx_hash[:8] + '...')
                 
-                G.add_edge(source, tx_hash, type='SENT_FROM', value=value, timestamp=timestamp)
-                G.add_edge(tx_hash, target, type='SENT_TO', value=value, timestamp=timestamp)
+                G.add_edge(source, tx_hash, type='PARTICIPATED_IN', value=value, timestamp=timestamp)
+                G.add_edge(tx_hash, target, type='PARTICIPATED_IN', value=value, timestamp=timestamp)
             
             # Export to GEXF format for Gephi
             nx.write_gexf(G, output_file)
@@ -386,7 +386,7 @@ class ChartGenerator:
             plt.axis('equal')
             
             plt.tight_layout()
-            plt.show()
+            plt.close()
             
         except Exception as e:
             logger.error(f"Error creating risk distribution chart: {str(e)}")
@@ -395,7 +395,7 @@ class ChartGenerator:
         """Create a bar chart of transaction volumes"""
         try:
             query = """
-            MATCH (a:Address {address: $address})-[:SENT_FROM]->(t:Transaction)
+            MATCH (a:Address {address: $address})-[:PARTICIPATED_IN]->(t:Transaction)
             WHERE t.timestamp > datetime() - duration({hours: $time_window})
             RETURN t.tx_hash as tx_hash, t.value as value, t.timestamp as timestamp
             ORDER BY t.timestamp ASC
@@ -430,7 +430,7 @@ class ChartGenerator:
             plt.grid(True, alpha=0.3)
             
             plt.tight_layout()
-            plt.show()
+            plt.close()
             
         except Exception as e:
             logger.error(f"Error creating transaction volume chart: {str(e)}")

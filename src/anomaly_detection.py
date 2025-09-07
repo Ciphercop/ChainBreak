@@ -23,8 +23,10 @@ class LayeringDetector:
         """Detect multiple exchanges/mixing services used in single transaction chain"""
         try:
             query = """
-            MATCH (a:Address {address: $address})-[:SENT_FROM]->(t1:Transaction)-[:SENT_TO]->(intermediate:Address),
-                  (intermediate)-[:SENT_FROM]->(t2:Transaction)-[:SENT_TO]->(final:Address)
+            MATCH (a:Address {address: $address})-[:PARTICIPATED_IN]->(t1:Transaction),
+                  (intermediate:Address)-[:PARTICIPATED_IN]->(t1),
+                  (intermediate)-[:PARTICIPATED_IN]->(t2:Transaction),
+                  (final:Address)-[:PARTICIPATED_IN]->(t2)
             WHERE t1.timestamp > datetime() - duration({hours: $time_window})
             AND t2.timestamp > datetime() - duration({hours: $time_window})
             AND intermediate <> final
@@ -56,14 +58,17 @@ class LayeringDetector:
         """Detect complex layering with multiple intermediate addresses"""
         try:
             query = """
-            MATCH path = (a:Address {address: $address})-[:SENT_FROM]->(t1:Transaction)-[:SENT_TO]->(intermediate:Address)
+            MATCH path = (a:Address {address: $address})-[:PARTICIPATED_IN]->(t1:Transaction),
+                  (intermediate:Address)-[:PARTICIPATED_IN]->(t1)
             WHERE t1.timestamp > datetime() - duration({hours: $time_window})
             WITH a, intermediate, t1
-            MATCH (intermediate)-[:SENT_FROM]->(t2:Transaction)-[:SENT_TO]->(final:Address)
+            MATCH (intermediate)-[:PARTICIPATED_IN]->(t2:Transaction),
+                  (final:Address)-[:PARTICIPATED_IN]->(t2)
             WHERE t2.timestamp > t1.timestamp
             AND t2.timestamp < t1.timestamp + duration({hours: 2})
             WITH a, intermediate, final, t1, t2
-            MATCH (final)-[:SENT_FROM]->(t3:Transaction)-[:SENT_TO]->(final2:Address)
+            MATCH (final)-[:PARTICIPATED_IN]->(t3:Transaction),
+                  (final2:Address)-[:PARTICIPATED_IN]->(t3)
             WHERE t3.timestamp > t2.timestamp
             AND t3.timestamp < t2.timestamp + duration({hours: 2})
             RETURN a.address as source,
@@ -97,7 +102,8 @@ class SmurfingDetector:
         """Detect rapid movement across multiple accounts (smurfing)"""
         try:
             query = """
-            MATCH (sender:Address)-[:SENT_FROM]->(t:Transaction)-[:SENT_TO]->(receiver:Address)
+            MATCH (sender:Address)-[:PARTICIPATED_IN]->(t:Transaction),
+                  (receiver:Address)-[:PARTICIPATED_IN]->(t)
             WITH sender, count(t) as transaction_count, 
                  avg(t.value) as avg_amount, 
                  min(t.timestamp) as first_tx, 
@@ -133,10 +139,12 @@ class SmurfingDetector:
         """Detect structured smurfing with specific patterns"""
         try:
             query = """
-            MATCH (a:Address {address: $address})-[:SENT_FROM]->(t:Transaction)-[:SENT_TO]->(receiver:Address)
+            MATCH (a:Address {address: $address})-[:PARTICIPATED_IN]->(t:Transaction),
+                  (receiver:Address)-[:PARTICIPATED_IN]->(t)
             WHERE t.timestamp > datetime() - duration({hours: $time_window})
             WITH a, receiver, t
-            MATCH (receiver)-[:SENT_FROM]->(t2:Transaction)-[:SENT_TO]->(final:Address)
+            MATCH (receiver)-[:PARTICIPATED_IN]->(t2:Transaction),
+                  (final:Address)-[:PARTICIPATED_IN]->(t2)
             WHERE t2.timestamp > t.timestamp
             AND t2.timestamp < t.timestamp + duration({hours: 1})
             WITH a, receiver, final, t, t2
@@ -181,8 +189,7 @@ class VolumeAnomalyDetector:
             WHERE t.timestamp > datetime() - duration({hours: $time_window})
             RETURN t.tx_hash as tx_hash,
                    t.value as value, 
-                   t.timestamp as timestamp,
-                   t.fee as fee
+                   t.timestamp as timestamp
             """
 
             with self.driver.session() as session:
@@ -224,7 +231,7 @@ class VolumeAnomalyDetector:
         """Detect unusual value patterns for a specific address"""
         try:
             query = """
-            MATCH (a:Address {address: $address})-[:SENT_FROM]->(t:Transaction)
+            MATCH (a:Address {address: $address})-[:PARTICIPATED_IN]->(t:Transaction)
             WHERE t.timestamp > datetime() - duration({hours: $time_window})
             RETURN t.tx_hash as tx_hash,
                    t.value as value,
@@ -277,7 +284,7 @@ class TemporalAnomalyDetector:
         """Detect unusual timing patterns in transactions"""
         try:
             query = """
-            MATCH (a:Address {address: $address})-[:SENT_FROM]->(t:Transaction)
+            MATCH (a:Address {address: $address})-[:PARTICIPATED_IN]->(t:Transaction)
             WHERE t.timestamp > datetime() - duration({hours: $time_window})
             RETURN t.tx_hash as tx_hash,
                    t.timestamp as timestamp,

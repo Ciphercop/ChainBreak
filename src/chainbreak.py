@@ -107,7 +107,7 @@ class ChainBreak:
                 logger.info("Attempting to connect to Neo4j...")
                 self._initialize_neo4j_backend()
                 self.backend_mode = "neo4j"
-                logger.info("✅ Successfully initialized Neo4j backend")
+                logger.info("[SUCCESS] Successfully initialized Neo4j backend")
                 return
             except Exception as e:
                 logger.warning(f"❌ Neo4j connection failed: {str(e)}")
@@ -119,7 +119,7 @@ class ChainBreak:
                     time.sleep(2)  # Brief delay before retry
                     self._initialize_neo4j_backend()
                     self.backend_mode = "neo4j"
-                    logger.info("✅ Successfully initialized Neo4j backend on retry")
+                    logger.info("[SUCCESS] Successfully initialized Neo4j backend on retry")
                     return
                 except Exception as retry_e:
                     logger.warning(f"❌ Neo4j retry failed: {str(retry_e)}")
@@ -305,8 +305,9 @@ class ChainBreak:
                     self.visualizer.create_transaction_timeline(address)
                     visualizations['timeline_created'] = True
 
-                    # Risk heatmap
-                    self.visualizer.create_risk_heatmap(address)
+                    # Risk heatmap - get risk score for the address
+                    risk_score = self.risk_scorer.calculate_risk_score(address)
+                    self.visualizer.create_risk_heatmap([address], [risk_score])
                     visualizations['risk_heatmap_created'] = True
 
                 except Exception as e:
@@ -605,7 +606,7 @@ class ChainBreak:
         # Add threat intelligence status
         if threat_intel_result and threat_intel_result.get('available', False):
             recommendations.append(
-                "✅ Address verified clean by threat intelligence sources")
+                "[SUCCESS] Address verified clean by threat intelligence sources")
         elif threat_intel_result and not threat_intel_result.get('available', False):
             recommendations.append(
                 "⚠️ Threat intelligence not available - manual verification recommended")

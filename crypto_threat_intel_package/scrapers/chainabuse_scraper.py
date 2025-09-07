@@ -128,9 +128,9 @@ class ChainAbuseScraper:
                     logger.info(f"All endpoints failed, retrying in {self.delay_between_requests * 2} seconds...")
                     time.sleep(self.delay_between_requests * 2)
             
-            # If all attempts failed, try alternative data sources
-            logger.info(f"Primary ChainAbuse search failed for {address}, trying alternative sources...")
-            return self._search_alternative_sources(address)
+            # If all attempts failed, return None (no real data found)
+            logger.info(f"No ChainAbuse data found for address: {address}")
+            return None
             
         except Exception as e:
             logger.error(f"Unexpected error searching ChainAbuse: {str(e)}")

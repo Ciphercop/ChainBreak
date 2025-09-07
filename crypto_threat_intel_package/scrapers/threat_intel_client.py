@@ -85,7 +85,6 @@ class ThreatIntelClient:
         if self.enable_chainabuse:
             try:
                 import sys
-                import os
                 # Add parent directory to path to import chainabuse_scraper
                 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
                 if parent_dir not in sys.path:
@@ -102,7 +101,6 @@ class ThreatIntelClient:
         if self.enable_bitcoinwhoswho:
             try:
                 import sys
-                import os
                 # Add parent directory to path to import bitcoinwhoswho_scraper
                 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
                 if parent_dir not in sys.path:
