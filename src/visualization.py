@@ -44,10 +44,10 @@ class NetworkVisualizer:
             for node in G.nodes():
                 if node == address:
                     node_colors.append('red')  # Source address
-                    node_sizes.append(1000)
+                    node_sizes.append(500)
                 elif G.nodes[node].get('type') == 'Transaction':
                     node_colors.append('lightblue')  # Transactions
-                    node_sizes.append(300)
+                    node_sizes.append(500)
                 else:
                     node_colors.append('lightgreen')  # Other addresses
                     node_sizes.append(500)

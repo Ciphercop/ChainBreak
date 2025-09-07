@@ -51,50 +51,18 @@ class BlockchainComFetcher:
         nodes = {}
         edges = []
 
-        def ensure_node(node_id: str, label: str, type_: str, **kwargs):
+        def ensure_node(node_id: str, label: str, type_: str):
             if node_id not in nodes:
-                nodes[node_id] = {
-                    "id": node_id,
-                    "label": label,
-                    "type": type_,
-                    **kwargs
-                }
+                nodes[node_id] = {"id": node_id, "label": label, "type": type_}
 
-        # Add the main address with balance info
-        balance = data.get("final_balance", 0)
-        total_received = data.get("total_received", 0)
-        total_sent = data.get("total_sent", 0)
-        tx_count = data.get("n_tx", 0)
-
-        ensure_node(address, address[:10], "address",
-                    balance=balance,
-                    total_received=total_received,
-                    total_sent=total_sent,
-                    transaction_count=tx_count,
-                    first_seen=data.get("first_tx", {}).get("time"),
-                    last_seen=data.get("last_tx", {}).get("time"))
+        ensure_node(address, address[:10], "address")
 
         for tx in data.get("txs", []):
             txid = tx.get("hash")
             if not txid:
                 continue
 
-            # Add transaction details
-            tx_time = tx.get("time")
-            tx_fee = tx.get("fee", 0)
-            tx_size = tx.get("size", 0)
-            tx_weight = tx.get("weight", 0)
-
-            ensure_node(txid, txid[:10], "transaction",
-                        timestamp=tx_time,
-                        fee=tx_fee,
-                        size=tx_size,
-                        weight=tx_weight,
-                        input_count=len(tx.get("inputs", [])),
-                        output_count=len(tx.get("out", [])),
-                        total_input_value=sum(inp.get("prev_out", {}).get(
-                            "value", 0) for inp in tx.get("inputs", [])),
-                        total_output_value=sum(out.get("value", 0) for out in tx.get("out", [])))
+            ensure_node(txid, txid[:10], "transaction")
 
             for vin in tx.get("inputs", []):
                 prev_out = vin.get("prev_out") or {}
@@ -102,20 +70,13 @@ class BlockchainComFetcher:
                 if not src_addr:
                     continue
 
-                # Add address with basic info if not exists
-                if src_addr not in nodes:
-                    ensure_node(src_addr, src_addr[:10], "address",
-                                balance=0,  # We don't have balance info for other addresses
-                                transaction_count=0)
-
+                ensure_node(src_addr, src_addr[:10], "address")
                 edges.append({
                     "id": f"{src_addr}->{txid}",
                     "source": src_addr,
                     "target": txid,
                     "type": "SENT_FROM",
-                    "value": prev_out.get("value", 0),
-                    "timestamp": tx_time,
-                    "direction": "outgoing"
+                    "value": prev_out.get("value", 0)
                 })
 
             for vout in tx.get("out", []):
@@ -123,20 +84,13 @@ class BlockchainComFetcher:
                 if not dst_addr:
                     continue
 
-                # Add address with basic info if not exists
-                if dst_addr not in nodes:
-                    ensure_node(dst_addr, dst_addr[:10], "address",
-                                balance=0,  # We don't have balance info for other addresses
-                                transaction_count=0)
-
+                ensure_node(dst_addr, dst_addr[:10], "address")
                 edges.append({
                     "id": f"{txid}->{dst_addr}",
                     "source": txid,
                     "target": dst_addr,
                     "type": "SENT_TO",
-                    "value": vout.get("value", 0),
-                    "timestamp": tx_time,
-                    "direction": "incoming"
+                    "value": vout.get("value", 0)
                 })
 
         graph = {
@@ -146,10 +100,7 @@ class BlockchainComFetcher:
                 "address": address,
                 "tx_count": len(data.get("txs", [])),
                 "node_count": len(nodes),
-                "edge_count": len(edges),
-                "total_balance": balance,
-                "total_received": total_received,
-                "total_sent": total_sent
+                "edge_count": len(edges)
             }
         }
 

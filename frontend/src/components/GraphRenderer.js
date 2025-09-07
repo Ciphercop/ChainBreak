@@ -34,7 +34,7 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '', illicitAddresse
         .map(n => ({
           id: n.id,
           label: n.label || n.id,
-          size: n.size || 8,
+          size: 8,
           color: n.color || '#6366f1',
           x: n.x ?? Math.random() * 1000,
           y: n.y ?? Math.random() * 1000,
