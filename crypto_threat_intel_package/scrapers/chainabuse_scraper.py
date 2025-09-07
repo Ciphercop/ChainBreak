@@ -843,6 +843,33 @@ class ChainAbuseScraper:
         except Exception as e:
             logger.error(f"Error analyzing address patterns for {address}: {str(e)}")
             return {'is_suspicious': False, 'patterns': [], 'confidence': 0.0}
+    
+    def search_addresses_batch(self, addresses: List[str]) -> List[Optional[ChainAbuseReport]]:
+        """
+        Search for multiple addresses in batch.
+        
+        Args:
+            addresses: List of Bitcoin addresses to search for
+            
+        Returns:
+            List of ChainAbuseReport objects (None for addresses not found)
+        """
+        results = []
+        
+        for address in addresses:
+            try:
+                result = self.search_address(address)
+                results.append(result)
+                
+                # Add delay between requests to be respectful
+                if self.delay_between_requests > 0:
+                    time.sleep(self.delay_between_requests)
+                    
+            except Exception as e:
+                logger.error(f"Error searching address {address}: {e}")
+                results.append(None)
+        
+        return results
 
 # Global scraper instance
 chainabuse_scraper = ChainAbuseScraper()

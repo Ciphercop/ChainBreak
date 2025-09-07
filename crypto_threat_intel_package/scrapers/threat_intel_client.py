@@ -9,6 +9,7 @@ import logging
 import requests
 import dns.resolver
 import dns.exception
+import os
 from typing import Dict, Optional, Any
 from datetime import datetime
 import time

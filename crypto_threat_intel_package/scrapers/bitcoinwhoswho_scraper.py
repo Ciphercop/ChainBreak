@@ -41,6 +41,7 @@ class BitcoinWhosWhoResult:
     website_appearances: List[Dict[str, Any]]
     confidence: float
     timestamp: datetime
+    risk_level: str = "UNKNOWN"
     error: Optional[str] = None
 
 @dataclass
@@ -162,6 +163,9 @@ class BitcoinWhosWhoScraper:
             # Calculate confidence based on data quality and quantity
             confidence = self._calculate_confidence(score, scam_reports, website_appearances, tags)
             
+            # Calculate risk level based on score and reports
+            risk_level = self._calculate_risk_level(score, scam_reports, tags)
+            
             return BitcoinWhosWhoResult(
                 source=BitcoinWhosWhoSource.BITCOINWHOSWHO,
                 address=address,
@@ -170,7 +174,8 @@ class BitcoinWhosWhoScraper:
                 scam_reports=scam_reports,
                 website_appearances=website_appearances,
                 confidence=confidence,
-                timestamp=datetime.now()
+                timestamp=datetime.now(),
+                risk_level=risk_level
             )
             
         except Exception as e:
@@ -880,6 +885,77 @@ class BitcoinWhosWhoScraper:
         
         # Cap confidence at 1.0
         return min(confidence, 1.0)
+    
+    def _calculate_risk_level(self, score: Optional[float], scam_reports: List[Dict], tags: List[str]) -> str:
+        """
+        Calculate risk level based on score, scam reports, and tags.
+        
+        Args:
+            score: Risk score from BitcoinWhosWho
+            scam_reports: List of scam reports
+            tags: List of tags associated with the address
+            
+        Returns:
+            Risk level string: LOW, MEDIUM, HIGH, CRITICAL
+        """
+        risk_score = 0.0
+        
+        # Score factor (0-0.5)
+        if score is not None:
+            risk_score += score * 0.5
+        
+        # Scam reports factor (0-0.3)
+        if scam_reports:
+            report_count = len(scam_reports)
+            risk_score += min(report_count * 0.1, 0.3)
+            
+            # Boost for high severity reports
+            high_severity_reports = [r for r in scam_reports if r.get('severity') in ['high', 'critical']]
+            if high_severity_reports:
+                risk_score += 0.2
+        
+        # Tags factor (0-0.2)
+        if tags:
+            high_risk_tags = ['scam', 'fraud', 'ransomware', 'malware', 'darkweb', 'mixing', 'tumbler', 'stolen']
+            high_risk_tag_count = sum(1 for tag in tags if any(risk_tag in tag.lower() for risk_tag in high_risk_tags))
+            risk_score += min(high_risk_tag_count * 0.05, 0.2)
+        
+        # Determine risk level
+        if risk_score >= 0.8:
+            return "CRITICAL"
+        elif risk_score >= 0.6:
+            return "HIGH"
+        elif risk_score >= 0.4:
+            return "MEDIUM"
+        else:
+            return "LOW"
+    
+    def search_addresses_batch(self, addresses: List[str]) -> List[Optional[BitcoinWhosWhoResult]]:
+        """
+        Search for multiple addresses in batch.
+        
+        Args:
+            addresses: List of Bitcoin addresses to search for
+            
+        Returns:
+            List of BitcoinWhosWhoResult objects (None for addresses not found)
+        """
+        results = []
+        
+        for address in addresses:
+            try:
+                result = self.search_address(address)
+                results.append(result)
+                
+                # Add delay between requests to be respectful
+                if hasattr(self, 'delay_between_requests') and self.delay_between_requests > 0:
+                    time.sleep(self.delay_between_requests)
+                    
+            except Exception as e:
+                logger.error(f"Error searching address {address}: {e}")
+                results.append(None)
+        
+        return results
     
     def get_address_risk_assessment(self, address: str) -> Dict[str, Any]:
         """

@@ -19,7 +19,7 @@ sys.path.append(str(threat_intel_path / "config"))
 
 try:
     from threat_intel_client import ThreatIntelClient
-    from threat_intel_config import get_threat_intel_config, validate_threat_intel_config
+    from scraper_config import ScraperConfig
     THREAT_INTEL_AVAILABLE = True
 except ImportError as e:
     logging.warning(f"Threat intelligence package not available: {e}")
@@ -51,14 +51,9 @@ class ThreatIntelligenceManager:
         
         if THREAT_INTEL_AVAILABLE:
             try:
-                # Validate configuration
-                is_valid, errors = validate_threat_intel_config(self.config)
-                if not is_valid:
-                    logger.warning(f"Threat intelligence config validation failed: {errors}")
-                    return
-                
-                # Initialize threat intelligence client
-                self.threat_intel_client = ThreatIntelClient(self.config)
+                # Initialize threat intelligence client with ScraperConfig
+                scraper_config = ScraperConfig()
+                self.threat_intel_client = ThreatIntelClient(scraper_config)
                 self.enabled = True
                 logger.info("Threat intelligence manager initialized successfully")
                 
@@ -70,17 +65,14 @@ class ThreatIntelligenceManager:
     
     def _get_default_config(self) -> Dict[str, Any]:
         """Get default threat intelligence configuration."""
-        if THREAT_INTEL_AVAILABLE:
-            return get_threat_intel_config("development")
-        else:
-            return {
-                "enable_btcblack": False,
-                "enable_chainabuse": False,
-                "enable_cropty": False,
-                "enable_bitcoinwhoswho": False,
-                "timeout": 10,
-                "retry_attempts": 2
-            }
+        return {
+            "enable_btcblack": True,
+            "enable_chainabuse": True,
+            "enable_cropty": True,
+            "enable_bitcoinwhoswho": True,
+            "timeout": 15,
+            "retry_attempts": 3
+        }
     
     def is_available(self) -> bool:
         """Check if threat intelligence is available and enabled."""
