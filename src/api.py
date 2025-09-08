@@ -19,20 +19,47 @@ CORS(app, resources={
 
 app.register_blueprint(frontend_bp)
 
-# Unified data directory - use Data/graph (case-sensitive)
-GRAPH_DIR = Path("Data/graph")
+# Unified data directory - use data/graph (consistent with actual structure)
+GRAPH_DIR = Path("data/graph")
 GRAPH_DIR.mkdir(parents=True, exist_ok=True)
 
 logger.info(f"Graph directory initialized: {GRAPH_DIR.resolve()}")
 
 
+# Global ChainBreak instance for better performance
+_chainbreak_instance = None
+_chainbreak_initialized = False
+
 def get_chainbreak():
+    """Get or create ChainBreak instance with singleton pattern"""
+    global _chainbreak_instance, _chainbreak_initialized
+
+    if _chainbreak_instance is not None and _chainbreak_initialized:
+        return _chainbreak_instance
+
     try:
         from .chainbreak import ChainBreak
-        return ChainBreak()
+        _chainbreak_instance = ChainBreak()
+        _chainbreak_initialized = True
+        logger.info("ChainBreak instance created successfully")
+        return _chainbreak_instance
     except Exception as e:
         logger.error(f"Failed to initialize ChainBreak: {e}")
+        _chainbreak_initialized = False
         return None
+
+def reset_chainbreak():
+    """Reset ChainBreak instance (useful for testing or reconfiguration)"""
+    global _chainbreak_instance, _chainbreak_initialized
+    if _chainbreak_instance is not None:
+        try:
+            _chainbreak_instance.close()
+        except Exception as e:
+            logger.warning(f"Error closing ChainBreak instance: {e}")
+
+    _chainbreak_instance = None
+    _chainbreak_initialized = False
+    logger.info("ChainBreak instance reset")
 
 
 @app.route("/")
@@ -157,46 +184,86 @@ def list_graphs():
 
 @app.route("/api/graph/address", methods=["POST"])
 def fetch_graph_address():
-    """Fetch and save graph for an address"""
+    """Fetch and save graph for an address with enhanced error handling"""
     try:
         data = request.get_json()
-        address = data.get("address")
+        if not data:
+            return jsonify({"success": False, "error": "Invalid JSON data"}), 400
+
+        address = data.get("address", "").strip()
         tx_limit = data.get("tx_limit", 50)
 
+        # Validate inputs
         if not address:
-            return jsonify({"success": False, "error": "Address required"}), 400
+            return jsonify({"success": False, "error": "Address is required"}), 400
+
+        if not isinstance(tx_limit, int) or tx_limit < 1 or tx_limit > 200:
+            return jsonify({"success": False, "error": "Transaction limit must be between 1 and 200"}), 400
+
+        # Validate Bitcoin address format
+        import re
+        if not re.match(r'^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$|^bc1[a-z0-9]{39,59}$', address):
+            return jsonify({"success": False, "error": "Invalid Bitcoin address format"}), 400
 
         chainbreak = get_chainbreak()
         if not chainbreak:
             return jsonify({"success": False, "error": "ChainBreak not initialized"}), 500
 
-        # Import here to avoid circular imports
-        from .fetch_blockchain_com import BlockchainComFetcher
+        logger.info(f"Fetching graph for address: {address[:10]}... with limit {tx_limit}")
 
-        fetcher = BlockchainComFetcher()
-        graph = fetcher.build_graph_for_address(address, tx_limit=tx_limit)
+        # Import here to avoid circular imports
+        from .fetch_blockchain_com import BlockchainComFetcher, BlockchainAPIError, RateLimitError
+
+        try:
+            fetcher = BlockchainComFetcher()
+            graph = fetcher.build_graph_for_address(address, tx_limit=tx_limit)
+        except RateLimitError as e:
+            logger.warning(f"Rate limit exceeded for address {address}: {e}")
+            return jsonify({"success": False, "error": "API rate limit exceeded. Please try again later."}), 429
+        except BlockchainAPIError as e:
+            logger.error(f"Blockchain API error for address {address}: {e}")
+            return jsonify({"success": False, "error": f"Blockchain API error: {str(e)}"}), 502
+        except Exception as e:
+            logger.error(f"Unexpected error fetching graph for {address}: {e}")
+            return jsonify({"success": False, "error": "Failed to fetch blockchain data"}), 500
+
+        # Validate graph data
+        if not graph or not isinstance(graph, dict):
+            return jsonify({"success": False, "error": "Invalid graph data received"}), 500
+
+        nodes = graph.get("nodes", [])
+        if len(nodes) == 0:
+            return jsonify({"success": False, "error": "No transaction data found for this address"}), 404
 
         # Sanitize filename - only allow alphanumeric, underscore, hyphen
-        import re
         safe_address = re.sub(r'[^A-Za-z0-9_\-]', '_', address)
-        filename = f"graph_{safe_address}.json"
+        filename = f"graph_{safe_address[:12]}_{tx_limit}.json"
 
-        file_path = GRAPH_DIR / filename
-        with open(file_path, "w") as f:
-            json.dump(graph, f, indent=2)
+        try:
+            file_path = GRAPH_DIR / filename
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(graph, f, indent=2, ensure_ascii=False)
 
-        logger.info(
-            f"Graph saved: {filename} with {len(graph.get('nodes', []))} nodes")
+            logger.info(f"Graph saved: {filename} with {len(nodes)} nodes, {len(graph.get('edges', []))} edges")
 
-        return jsonify({
-            "success": True,
-            "file": filename,
-            "meta": graph.get("meta", {})
-        })
+            return jsonify({
+                "success": True,
+                "file": filename,
+                "meta": graph.get("meta", {}),
+                "stats": {
+                    "nodes": len(nodes),
+                    "edges": len(graph.get("edges", [])),
+                    "tx_limit": tx_limit
+                }
+            })
+
+        except Exception as e:
+            logger.error(f"Error saving graph file {filename}: {e}")
+            return jsonify({"success": False, "error": "Failed to save graph data"}), 500
 
     except Exception as e:
-        logger.error(f"Error fetching graph: {traceback.format_exc()}")
-        return jsonify({"success": False, "error": str(e)}), 500
+        logger.error(f"Unexpected error in fetch_graph_address: {traceback.format_exc()}")
+        return jsonify({"success": False, "error": "Internal server error"}), 500
 
 
 @app.route("/api/graph/get", methods=["GET"])

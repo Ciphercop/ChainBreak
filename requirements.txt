@@ -30,9 +30,7 @@ black
 flake8
 mypy
 
-# Docker and containerization
-docker
-docker-compose
+
 
 # Logging and monitoring
 colorlog

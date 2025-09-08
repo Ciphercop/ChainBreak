@@ -7,8 +7,8 @@ logger = logging.getLogger(__name__)
 
 bp = Blueprint("frontend_api", __name__)
 
-# Unified data directory - use Data/graph (case-sensitive)
-DATA_DIR = Path("Data/graph")
+# Unified data directory - use data/graph (consistent with actual structure)
+DATA_DIR = Path("data/graph")
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 logger.info(f"Frontend API serving graph files from {DATA_DIR.resolve()}")
@@ -25,7 +25,10 @@ def build_graph_address():
         if not address:
             return jsonify({"success": False, "error": "address required"}), 400
 
-        fetcher = BlockchainComFetcher()
+        # Create fetcher with correct data directory configuration
+        from .fetch_blockchain_com import FetcherConfig
+        config = FetcherConfig(data_dir=DATA_DIR)
+        fetcher = BlockchainComFetcher(config=config)
         graph = fetcher.build_graph_for_address(address, tx_limit=tx_limit)
         saved = fetcher.save_graph(graph)
 
