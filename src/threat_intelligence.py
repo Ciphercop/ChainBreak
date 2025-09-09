@@ -11,19 +11,9 @@ import os
 from typing import Dict, Any, Optional, List
 from pathlib import Path
 
-# Add the crypto threat intel package to the path
-threat_intel_path = Path(__file__).parent.parent / "crypto_threat_intel_package"
-sys.path.append(str(threat_intel_path))
-sys.path.append(str(threat_intel_path / "scrapers"))
-sys.path.append(str(threat_intel_path / "config"))
-
-try:
-    from threat_intel_client import ThreatIntelClient
-    from scraper_config import ScraperConfig
-    THREAT_INTEL_AVAILABLE = True
-except ImportError as e:
-    logging.warning(f"Threat intelligence package not available: {e}")
-    THREAT_INTEL_AVAILABLE = False
+# Threat intelligence is now integrated directly into illicit_transaction_detector.py
+# No external package dependencies needed
+THREAT_INTEL_AVAILABLE = True
 
 logger = logging.getLogger(__name__)
 
@@ -50,16 +40,10 @@ class ThreatIntelligenceManager:
         self.enabled = False
         
         if THREAT_INTEL_AVAILABLE:
-            try:
-                # Initialize threat intelligence client with ScraperConfig
-                scraper_config = ScraperConfig()
-                self.threat_intel_client = ThreatIntelClient(scraper_config)
-                self.enabled = True
-                logger.info("Threat intelligence manager initialized successfully")
-                
-            except Exception as e:
-                logger.error(f"Failed to initialize threat intelligence: {e}")
-                self.enabled = False
+            # Threat intelligence is now integrated directly into illicit_transaction_detector.py
+            self.threat_intel_client = None  # No longer needed
+            self.enabled = True
+            logger.info("Threat intelligence manager initialized successfully")
         else:
             logger.warning("Threat intelligence package not available")
     

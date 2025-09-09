@@ -166,3 +166,4 @@ if (typeof window !== 'undefined') {
 }
 
 export default logger;
+export { logger };

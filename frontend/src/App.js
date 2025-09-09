@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster } from 'react-hot-toast';
-import { Bitcoin, Activity, BarChart3, Settings, Zap, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import { Bitcoin, Activity, BarChart3, Settings, Zap, AlertCircle, CheckCircle, XCircle, Shield, Search } from 'lucide-react';
 import logger from './utils/logger';
 import { chainbreakAPI } from './utils/api';
 import AddressInput from './components/AddressInput';
@@ -10,6 +10,8 @@ import GraphList from './components/GraphList';
 import NodeDetails from './components/NodeDetails';
 import SystemStatus from './components/SystemStatus';
 import ThreatIntelligencePanel from './components/ThreatIntelligencePanel';
+import IllicitTransactionAnalyzer from './components/IllicitTransactionAnalyzer';
+import LawEnforcementDashboard from './components/LawEnforcementDashboard';
 import toast from 'react-hot-toast';
 
 const App = () => {
@@ -22,6 +24,7 @@ const App = () => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('graph');
   const [threatIntelData, setThreatIntelData] = useState(null);
+  const [currentView, setCurrentView] = useState('graph'); // 'graph', 'illicit-analysis', or 'law-enforcement'
 
   const checkBackendMode = useCallback(async () => {
     try {
@@ -277,6 +280,43 @@ const App = () => {
             </div>
             
             <div className="flex items-center space-x-4">
+              {/* Navigation Tabs */}
+              <div className="flex items-center space-x-1 bg-gray-700/50 rounded-lg p-1">
+                <button
+                  onClick={() => setCurrentView('graph')}
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
+                    currentView === 'graph' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'text-gray-300 hover:text-white hover:bg-gray-600'
+                  }`}
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  <span>Graph Analysis</span>
+                </button>
+                <button
+                  onClick={() => setCurrentView('illicit-analysis')}
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
+                    currentView === 'illicit-analysis' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'text-gray-300 hover:text-white hover:bg-gray-600'
+                  }`}
+                >
+                  <Shield className="w-4 h-4" />
+                  <span>Illicit Detection</span>
+                </button>
+                <button
+                  onClick={() => setCurrentView('law-enforcement')}
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-colors ${
+                    currentView === 'law-enforcement' 
+                      ? 'bg-red-600 text-white' 
+                      : 'text-gray-300 hover:text-white hover:bg-gray-600'
+                  }`}
+                >
+                  <AlertCircle className="w-4 h-4" />
+                  <span>Law Enforcement</span>
+                </button>
+              </div>
+              
               <button
                 onClick={handleRefresh}
                 disabled={isLoading}
@@ -291,68 +331,78 @@ const App = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-1 space-y-6">
-            <AddressInput onSubmit={handleAddressSubmit} isLoading={isLoading} />
-            
-            <SystemStatus 
-              backendMode={backendMode} 
-              systemStatus={systemStatus} 
-            />
-            
-            <GraphList
-              graphs={availableGraphs}
-              onGraphSelect={handleGraphSelect}
-              onRefresh={loadAvailableGraphs}
-              isLoading={isLoading}
-            />
-            
-            <ThreatIntelligencePanel
-              graphData={currentGraph}
-              onThreatIntelUpdate={handleThreatIntelUpdate}
-            />
-          </div>
+        {currentView === 'graph' ? (
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div className="lg:col-span-1 space-y-6">
+              <AddressInput onSubmit={handleAddressSubmit} isLoading={isLoading} />
+              
+              <SystemStatus 
+                backendMode={backendMode} 
+                systemStatus={systemStatus} 
+              />
+              
+              <GraphList
+                graphs={availableGraphs}
+                onGraphSelect={handleGraphSelect}
+                onRefresh={loadAvailableGraphs}
+                isLoading={isLoading}
+              />
+              
+              <ThreatIntelligencePanel
+                graphData={currentGraph}
+                onThreatIntelUpdate={handleThreatIntelUpdate}
+              />
+            </div>
 
-          <div className="lg:col-span-3">
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 overflow-hidden">
-              <div className="bg-gray-700/50 px-6 py-4 border-b border-gray-600/50">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-white">Transaction Graph</h2>
-                  <div className="flex items-center space-x-2">
-                    {currentGraph && (
-                      <span className="text-sm text-gray-400">
-                        {currentGraph.nodes?.length || 0} nodes, {currentGraph.edges?.length || 0} edges
-                      </span>
-                    )}
+            <div className="lg:col-span-3">
+              <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 overflow-hidden">
+                <div className="bg-gray-700/50 px-6 py-4 border-b border-gray-600/50">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold text-white">Transaction Graph</h2>
+                    <div className="flex items-center space-x-2">
+                      {currentGraph && (
+                        <span className="text-sm text-gray-400">
+                          {currentGraph.nodes?.length || 0} nodes, {currentGraph.edges?.length || 0} edges
+                        </span>
+                      )}
+                    </div>
                   </div>
+                </div>
+
+                <div className="p-6">
+                  {currentGraph ? (
+                    <GraphRenderer
+                      graphData={currentGraph}
+                      onNodeClick={handleNodeClick}
+                      className="w-full"
+                      illicitAddresses={threatIntelData?.illicitAddresses || []}
+                    />
+                  ) : (
+                    <div className="text-center py-12">
+                      <Bitcoin className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-400 mb-2">No Graph Selected</h3>
+                      <p className="text-gray-500">Enter a Bitcoin address to fetch and visualize the transaction graph</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <div className="p-6">
-                {currentGraph ? (
-                  <GraphRenderer
-                    graphData={currentGraph}
-                    onNodeClick={handleNodeClick}
-                    className="w-full"
-                    illicitAddresses={threatIntelData?.illicitAddresses || []}
-                  />
-                ) : (
-                  <div className="text-center py-12">
-                    <Bitcoin className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-400 mb-2">No Graph Selected</h3>
-                    <p className="text-gray-500">Enter a Bitcoin address to fetch and visualize the transaction graph</p>
-                  </div>
-                )}
-              </div>
+              {selectedNode && (
+                <div className="mt-6">
+                  <NodeDetails node={selectedNode} onClose={() => setSelectedNode(null)} />
+                </div>
+              )}
             </div>
-
-            {selectedNode && (
-              <div className="mt-6">
-                <NodeDetails node={selectedNode} onClose={() => setSelectedNode(null)} />
-              </div>
-            )}
           </div>
-        </div>
+        ) : currentView === 'illicit-analysis' ? (
+          <div className="w-full">
+            <IllicitTransactionAnalyzer />
+          </div>
+        ) : (
+          <div className="w-full">
+            <LawEnforcementDashboard />
+          </div>
+        )}
       </main>
     </div>
   );

@@ -228,6 +228,34 @@ export const chainbreakAPI = {
 
   async getStatistics() {
     return apiService.get('/api/statistics');
+  },
+
+  // Illicit Transaction Analysis API
+  async analyzeIllicitTransactions(addresses, includeVisualization = true, maxTransactions = 1000) {
+    return apiService.post('/api/illicit-analysis', {
+      addresses,
+      include_visualization: includeVisualization,
+      max_transactions: maxTransactions
+    });
+  },
+
+  async getPatternTypes() {
+    return apiService.get('/api/illicit-analysis/patterns');
+  },
+
+  async getRiskLevels() {
+    return apiService.get('/api/illicit-analysis/risk-levels');
+  },
+
+  async getThreatIntelligence(address) {
+    return apiService.get(`/api/illicit-analysis/threat-intel/${address}`);
+  },
+
+  async runIllicitDetection(graphData) {
+    return apiService.post('/api/illicit-analysis/run-detection', {
+      nodes: graphData.nodes || [],
+      edges: graphData.edges || []
+    });
   }
 };
 

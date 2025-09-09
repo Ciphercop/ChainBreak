@@ -8,7 +8,7 @@ import yaml
 from typing import Dict, Any, List, Optional
 from pathlib import Path
 
-from .data_ingestion import BaseDataIngestor, Neo4jDataIngestor, JSONDataIngestor
+from .data_ingestion import BaseDataIngestor, JSONDataIngestor
 from .anomaly_detection import (
     LayeringDetector,
     SmurfingDetector,
@@ -30,15 +30,12 @@ class ChainBreak:
         self.config = self._load_config(config_path)
         self._setup_logging()
 
-        # Initialize Neo4j connection parameters
-        neo4j_config = self.config.get('neo4j', {})
-        self.neo4j_uri = neo4j_config.get('uri', 'bolt://localhost:7687')
-        self.neo4j_user = neo4j_config.get('username', 'neo4j')
-        self.neo4j_password = neo4j_config.get('password', 'password')
+        # JSON backend configuration
+        self.json_backend_enabled = True
 
-        # Backend mode tracking
-        self.backend_mode = "unknown"
-        self.use_json_backend = self.config.get('use_json_backend', False)
+        # Backend mode tracking - JSON is the primary backend
+        self.backend_mode = "json"
+        self.use_json_backend = True
 
         # Initialize components with graceful fallback
         self._initialize_components()
@@ -65,10 +62,9 @@ class ChainBreak:
     def _get_default_config(self) -> Dict[str, Any]:
         """Get default configuration"""
         return {
-            'neo4j': {
-                'uri': 'bolt://localhost:7687',
-                'username': 'neo4j',
-                'password': 'password'
+            'json_backend': {
+                'enabled': True,
+                'data_directory': 'data/json'
             },
             'blockcypher': {
                 'api_key': 'your_api_key_here',
@@ -100,88 +96,39 @@ class ChainBreak:
         )
 
     def _initialize_components(self):
-        """Initialize all ChainBreak components with enhanced Neo4j prioritization"""
-        # Always try Neo4j first unless explicitly disabled
-        if not self.use_json_backend:
-            try:
-                logger.info("Attempting to connect to Neo4j...")
-                self._initialize_neo4j_backend()
-                self.backend_mode = "neo4j"
-                logger.info("[SUCCESS] Successfully initialized Neo4j backend")
-                return
-            except Exception as e:
-                logger.warning(f"❌ Neo4j connection failed: {str(e)}")
-                logger.info("🔄 Attempting Neo4j connection retry...")
-                
-                # Retry Neo4j connection once
-                try:
-                    import time
-                    time.sleep(2)  # Brief delay before retry
-                    self._initialize_neo4j_backend()
-                    self.backend_mode = "neo4j"
-                    logger.info("[SUCCESS] Successfully initialized Neo4j backend on retry")
-                    return
-                except Exception as retry_e:
-                    logger.warning(f"❌ Neo4j retry failed: {str(retry_e)}")
-        
-        # Fallback to JSON backend
-        logger.info("🔄 Falling back to JSON backend mode")
+        """Initialize all ChainBreak components with JSON backend"""
+        logger.info("[INFO] Initializing JSON backend")
         self._initialize_json_backend()
         self.backend_mode = "json"
-        logger.warning("⚠️ Running in limited JSON backend mode - some features disabled")
+        logger.info("[SUCCESS] Successfully initialized JSON backend")
 
-    def _initialize_neo4j_backend(self):
-        """Initialize Neo4j-based backend"""
-        self.data_ingestor = Neo4jDataIngestor(
-            self.neo4j_uri,
-            self.neo4j_user,
-            self.neo4j_password
-        )
-
-        # Initialize anomaly detectors with Neo4j driver
-        self.layering_detector = LayeringDetector(self.data_ingestor.driver)
-        self.smurfing_detector = SmurfingDetector(self.data_ingestor.driver)
-        self.volume_detector = VolumeAnomalyDetector(self.data_ingestor.driver)
-        self.temporal_detector = TemporalAnomalyDetector(
-            self.data_ingestor.driver)
-
-        # Initialize risk scorer with Neo4j driver
-        self.risk_scorer = RiskScorer(self.data_ingestor.driver, self.config)
-
-        # Initialize visualization components with Neo4j driver
-        self.visualizer = NetworkVisualizer(self.data_ingestor.driver)
-        self.gephi_exporter = GephiExporter(self.data_ingestor.driver)
-        self.chart_generator = ChartGenerator(self.data_ingestor.driver)
-
-        logger.info("All Neo4j components initialized successfully")
 
     def _initialize_json_backend(self):
-        """Initialize JSON-based backend"""
+        """Initialize JSON-based backend with full functionality"""
         logger.info("Initializing JSON backend components...")
 
         self.data_ingestor = JSONDataIngestor()
 
-        # Initialize lightweight components for JSON mode
-        self.layering_detector = None
-        self.smurfing_detector = None
-        self.volume_detector = None
-        self.temporal_detector = None
+        # Initialize full-featured components for JSON mode
+        self.layering_detector = LayeringDetector()
+        self.smurfing_detector = SmurfingDetector()
+        self.volume_detector = VolumeAnomalyDetector()
+        self.temporal_detector = TemporalAnomalyDetector()
 
-        self.risk_scorer = None
-        self.visualizer = None
-        self.gephi_exporter = None
-        self.chart_generator = None
+        self.risk_scorer = RiskScorer(config=self.config)
+        self.visualizer = NetworkVisualizer()
+        self.gephi_exporter = GephiExporter()
+        self.chart_generator = ChartGenerator()
 
-        logger.info(
-            "JSON backend components initialized (limited functionality)")
+        logger.info("JSON backend components initialized with full functionality")
 
     def get_backend_mode(self) -> str:
         """Get current backend mode"""
         return self.backend_mode
 
-    def is_neo4j_available(self) -> bool:
-        """Check if Neo4j backend is available"""
-        return self.backend_mode == "neo4j" and self.data_ingestor.is_operational()
+    def is_backend_available(self) -> bool:
+        """Check if backend is available"""
+        return self.backend_mode == "json" and self.data_ingestor.is_operational()
 
     def analyze_address(self, address: str, blockchain: str = 'btc',
                         generate_visualizations: bool = True) -> Dict[str, Any]:
@@ -202,7 +149,7 @@ class ChainBreak:
 
             # Step 2: Detect anomalies (only if Neo4j backend available)
             anomalies = {}
-            if self.is_neo4j_available():
+            if self.is_backend_available():
                 logger.info("Step 2: Detecting anomalies...")
 
                 # Layering detection
@@ -249,7 +196,7 @@ class ChainBreak:
 
             # Step 3: Calculate risk score (only if Neo4j backend available)
             risk_score = None
-            if self.is_neo4j_available():
+            if self.is_backend_available():
                 logger.info("Step 3: Calculating risk score...")
                 risk_score = self.risk_scorer.calculate_address_risk_score(
                     address)
@@ -293,7 +240,7 @@ class ChainBreak:
 
             # Step 4: Generate visualizations if requested and available
             visualizations = {}
-            if generate_visualizations and self.is_neo4j_available():
+            if generate_visualizations and self.is_backend_available():
                 logger.info("Step 4: Generating visualizations...")
                 try:
                     # Network visualization
@@ -390,7 +337,7 @@ class ChainBreak:
 
     def export_network_to_gephi(self, address: str, output_file: str = None) -> Optional[str]:
         """Export network to Gephi format"""
-        if not self.is_neo4j_available():
+        if not self.is_backend_available():
             logger.warning("Gephi export not available in JSON backend mode")
             return None
 
@@ -409,10 +356,10 @@ class ChainBreak:
 
     def generate_risk_report(self, addresses: List[str], output_file: str = None) -> str:
         """Generate comprehensive risk report"""
-        if not self.is_neo4j_available():
+        if not self.is_backend_available():
             logger.warning(
                 "Risk report generation not available in JSON backend mode")
-            return "Risk report generation requires Neo4j backend"
+            return "Risk report generation requires backend connection"
 
         try:
             report_content = self.risk_scorer.export_risk_report(
@@ -427,23 +374,23 @@ class ChainBreak:
     def get_system_status(self) -> Dict[str, Any]:
         """Get comprehensive system status"""
         try:
-            neo4j_status = "connected" if self.is_neo4j_available() else "disconnected"
+            backend_status = "connected" if self.is_backend_available() else "disconnected"
 
-            # Get database statistics if Neo4j is available
+            # Get database statistics if backend is available
             db_stats = {}
-            if self.is_neo4j_available():
+            if self.is_backend_available():
                 db_stats = self._get_database_statistics()
 
             status = {
                 'system_status': 'operational' if self.data_ingestor.is_operational() else 'degraded',
                 'backend_mode': self.backend_mode,
-                'neo4j_connection': neo4j_status,
+                'backend_connection': backend_status,
                 'data_ingestor_status': 'operational' if self.data_ingestor.is_operational() else 'failed',
                 'database_statistics': db_stats,
                 'timestamp': self._get_current_timestamp(),
                 'configuration': {
-                    'neo4j_uri': self.neo4j_uri,
-                    'use_json_backend': self.use_json_backend
+                    'backend_mode': self.backend_mode,
+                    'json_backend_enabled': self.json_backend_enabled
                 }
             }
 
@@ -458,29 +405,14 @@ class ChainBreak:
             }
 
     def _get_database_statistics(self) -> Dict[str, Any]:
-        """Get database statistics from Neo4j"""
-        if not self.is_neo4j_available():
+        """Get database statistics from JSON backend"""
+        if not self.is_backend_available():
             return {}
 
         try:
-            with self.data_ingestor.driver.session() as session:
-                # Count nodes by type
-                node_counts = {}
-                for node_type in ['Address', 'Transaction', 'Block']:
-                    result = session.run(
-                        f"MATCH (n:{node_type}) RETURN count(n) as count")
-                    count = result.single()['count']
-                    node_counts[f'{node_type.lower()}_count'] = count
-
-                # Count relationships
-                result = session.run(
-                    "MATCH ()-[r]-() RETURN count(r) as count")
-                relationship_count = result.single()['count']
-
-                return {
-                    'node_counts': node_counts,
-                    'relationship_count': relationship_count
-                }
+            # Get statistics from JSON data ingestor
+            stats = self.data_ingestor.get_statistics()
+            return stats
 
         except Exception as e:
             logger.warning(f"Error getting database statistics: {str(e)}")
@@ -568,7 +500,7 @@ class ChainBreak:
 
         if not risk_score:
             recommendations.append(
-                "Enable Neo4j backend for comprehensive risk analysis")
+                "Backend connection required for comprehensive risk analysis")
             return recommendations
 
         risk_level = risk_score.get('risk_level', 'UNKNOWN')

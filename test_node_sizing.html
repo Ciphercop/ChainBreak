@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node Sizing Test</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background: #111827; color: white; }
+        .container { width: 800px; height: 600px; border: 1px solid #374151; border-radius: 8px; }
+        .info { margin-bottom: 20px; }
+        .node-info { margin-top: 20px; padding: 10px; background: #1f2937; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="info">
+        <h2>Node Sizing Test</h2>
+        <p>Testing the new node sizing logic with different balance values.</p>
+    </div>
+    
+    <div id="graph" class="container"></div>
+    
+    <div class="node-info">
+        <h3>Node Sizes:</h3>
+        <div id="node-sizes"></div>
+    </div>
+
+    <script>
+        // Test data with different balance values
+        const testData = {
+            nodes: [
+                { id: "addr1", label: "Small Balance", balance: 1000000, type: "address" },      // 0.01 BTC
+                { id: "addr2", label: "Medium Balance", balance: 100000000, type: "address" },   // 1 BTC
+                { id: "addr3", label: "Large Balance", balance: 1000000000, type: "address" },  // 10 BTC
+                { id: "addr4", label: "Very Large", balance: 10000000000, type: "address" },     // 100 BTC
+                { id: "tx1", label: "Small TX", total_input_value: 5000000, type: "transaction" }, // 0.05 BTC
+                { id: "tx2", label: "Large TX", total_input_value: 500000000, type: "transaction" } // 5 BTC
+            ],
+            edges: [
+                { source: "addr1", target: "tx1" },
+                { source: "addr2", target: "tx1" },
+                { source: "addr3", target: "tx2" },
+                { source: "addr4", target: "tx2" }
+            ]
+        };
+
+        // Node sizing function (same as in GraphRenderer)
+        function calculateNodeRadius(d) {
+            if (d.type === 'address') {
+                const balance = d.balance || 0;
+                return Math.max(6, Math.min(12, 6 + (balance / 100000000) * 0.5));
+            }
+            if (d.type === 'transaction') {
+                const value = d.total_input_value || 0;
+                return Math.max(4, Math.min(10, 4 + (value / 100000000) * 0.3));
+            }
+            return Math.min(d.size || 8, 10);
+        }
+
+        // Create SVG
+        const svg = d3.select("#graph")
+            .append("svg")
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .style("background", "#111827");
+
+        const g = svg.append("g");
+
+        // Add zoom
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 10])
+            .on('zoom', (event) => {
+                g.attr('transform', event.transform);
+            });
+        svg.call(zoom);
+
+        // Create simulation
+        const simulation = d3.forceSimulation(testData.nodes)
+            .force('link', d3.forceLink(testData.edges).id(d => d.id).distance(80).strength(0.1))
+            .force('charge', d3.forceManyBody().strength(-100))
+            .force('center', d3.forceCenter(400, 300))
+            .force('collision', d3.forceCollide().radius(d => calculateNodeRadius(d) + 2));
+
+        // Create links
+        const links = g.append('g')
+            .selectAll('line')
+            .data(testData.edges)
+            .join('line')
+            .attr('stroke', '#94a3b8')
+            .attr('stroke-opacity', 0.6)
+            .attr('stroke-width', 2);
+
+        // Create nodes
+        const nodes = g.append('g')
+            .selectAll('circle')
+            .data(testData.nodes)
+            .join('circle')
+            .attr('r', calculateNodeRadius)
+            .attr('fill', d => {
+                if (d.type === 'address') return '#10b981';
+                if (d.type === 'transaction') return '#3b82f6';
+                return '#6366f1';
+            })
+            .attr('stroke', '#111827')
+            .attr('stroke-width', 2)
+            .style('cursor', 'pointer');
+
+        // Add labels
+        const labels = g.append('g')
+            .selectAll('text')
+            .data(testData.nodes)
+            .join('text')
+            .text(d => d.label)
+            .attr('text-anchor', 'middle')
+            .attr('dy', '0.35em')
+            .attr('fill', 'white')
+            .attr('font-size', '12px')
+            .attr('font-weight', 'bold');
+
+        // Update positions on simulation tick
+        simulation.on('tick', () => {
+            links
+                .attr('x1', d => d.source.x)
+                .attr('y1', d => d.source.y)
+                .attr('x2', d => d.target.x)
+                .attr('y2', d => d.target.y);
+
+            nodes
+                .attr('cx', d => d.x)
+                .attr('cy', d => d.y);
+
+            labels
+                .attr('x', d => d.x)
+                .attr('y', d => d.y);
+        });
+
+        // Display node size information
+        const nodeSizesDiv = d3.select("#node-sizes");
+        testData.nodes.forEach(node => {
+            const radius = calculateNodeRadius(node);
+            const balance = node.balance || node.total_input_value || 0;
+            const btcValue = balance / 100000000;
+            
+            nodeSizesDiv.append('div')
+                .style('margin-bottom', '5px')
+                .html(`${node.label}: ${radius.toFixed(1)}px radius (${btcValue.toFixed(2)} BTC)`);
+        });
+    </script>
+</body>
+</html>

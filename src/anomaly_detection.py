@@ -3,7 +3,7 @@ Anomaly Detection Engine for ChainBreak
 Implements algorithms for detecting suspicious transaction patterns
 """
 
-from neo4j import GraphDatabase
+# from neo4j import GraphDatabase  # Removed Neo4j dependency
 import numpy as np
 from sklearn.ensemble import IsolationForest
 import logging
@@ -16,12 +16,16 @@ logger = logging.getLogger(__name__)
 class LayeringDetector:
     """Detects layering patterns in transaction chains"""
 
-    def __init__(self, neo4j_driver):
+    def __init__(self, neo4j_driver=None):
         self.driver = neo4j_driver
 
     def detect_layering_patterns(self, address: str, time_window_hours: int = 24) -> List[Dict[str, Any]]:
         """Detect multiple exchanges/mixing services used in single transaction chain"""
         try:
+            if not self.driver:
+                # Return empty list if no Neo4j driver available
+                logger.info("LayeringDetector: No Neo4j driver available, returning empty results")
+                return []
             query = """
             MATCH (a:Address {address: $address})-[:PARTICIPATED_IN]->(t1:Transaction),
                   (intermediate:Address)-[:PARTICIPATED_IN]->(t1),
@@ -95,12 +99,15 @@ class LayeringDetector:
 class SmurfingDetector:
     """Detects smurfing patterns (rapid movement across multiple accounts)"""
 
-    def __init__(self, neo4j_driver):
+    def __init__(self, neo4j_driver=None):
         self.driver = neo4j_driver
 
     def detect_smurfing_patterns(self, min_transactions: int = 5, time_window_hours: int = 1) -> List[Dict[str, Any]]:
         """Detect rapid movement across multiple accounts (smurfing)"""
         try:
+            if not self.driver:
+                logger.info("SmurfingDetector: No Neo4j driver available, returning empty results")
+                return []
             query = """
             MATCH (sender:Address)-[:PARTICIPATED_IN]->(t:Transaction),
                   (receiver:Address)-[:PARTICIPATED_IN]->(t)
@@ -175,7 +182,7 @@ class SmurfingDetector:
 class VolumeAnomalyDetector:
     """Detects transactions with unusual volumes using machine learning"""
 
-    def __init__(self, neo4j_driver):
+    def __init__(self, neo4j_driver=None):
         self.driver = neo4j_driver
         self.isolation_forest = IsolationForest(
             contamination=0.1, random_state=42)
@@ -183,6 +190,9 @@ class VolumeAnomalyDetector:
     def detect_volume_anomalies(self, time_window_hours: int = 24) -> List[Dict[str, Any]]:
         """Detect transactions with unusual volumes using Isolation Forest"""
         try:
+            if not self.driver:
+                logger.info("VolumeAnomalyDetector: No Neo4j driver available, returning empty results")
+                return []
             # Get transaction data from the specified time window
             query = """
             MATCH (t:Transaction)
@@ -277,12 +287,15 @@ class VolumeAnomalyDetector:
 class TemporalAnomalyDetector:
     """Detects temporal anomalies in transaction patterns"""
 
-    def __init__(self, neo4j_driver):
+    def __init__(self, neo4j_driver=None):
         self.driver = neo4j_driver
 
     def detect_timing_anomalies(self, address: str, time_window_hours: int = 24) -> List[Dict[str, Any]]:
         """Detect unusual timing patterns in transactions"""
         try:
+            if not self.driver:
+                logger.info("TemporalAnomalyDetector: No Neo4j driver available, returning empty results")
+                return []
             query = """
             MATCH (a:Address {address: $address})-[:PARTICIPATED_IN]->(t:Transaction)
             WHERE t.timestamp > datetime() - duration({hours: $time_window})

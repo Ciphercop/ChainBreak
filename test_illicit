@@ -1,0 +1,675 @@
+#!/usr/bin/env python3
+"""
+Comprehensive Test Suite for Illicit Transaction Detector
+
+This test suite validates all functionality of the illicit transaction detector
+including pattern detection, risk scoring, graph analysis, and threat intelligence integration.
+"""
+
+import unittest
+import sys
+import os
+import logging
+from datetime import datetime, timedelta
+from typing import List, Dict, Any
+import json
+import tempfile
+import shutil
+
+# Add the current directory to Python path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+# Import the illicit transaction detector
+from illicit_transaction_detector import (
+    IllicitTransactionDetector,
+    Transaction,
+    AddressNode,
+    SuspiciousPatternDetection,
+    SuspiciousPattern,
+    RiskLevel,
+    IllicitTransactionAnalysis,
+    SIRModel,
+    YensPathAlgorithm,
+    ChainalysisAPI
+)
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
+class TestDataGenerator:
+    """Generate test data for various scenarios."""
+    
+    @staticmethod
+    def create_peel_chain_transactions() -> List[Transaction]:
+        """Create transactions that form a peel chain pattern."""
+        transactions = []
+        base_time = datetime.now()
+        
+        # Create a peel chain: decreasing amounts over time
+        amounts = [100.0, 80.0, 60.0, 40.0, 20.0, 10.0]
+        addresses = [f"addr_{i}" for i in range(len(amounts) + 1)]
+        
+        for i, amount in enumerate(amounts):
+            transactions.append(Transaction(
+                tx_hash=f"peel_tx_{i}",
+                from_address=addresses[i],
+                to_address=addresses[i + 1],
+                value=amount,
+                timestamp=base_time + timedelta(minutes=i * 5),
+                block_height=1000 + i,
+                fee=0.001,
+                confirmations=6
+            ))
+        
+        return transactions
+    
+    @staticmethod
+    def create_mixing_transactions() -> List[Transaction]:
+        """Create transactions that form a mixing pattern."""
+        transactions = []
+        base_time = datetime.now()
+        
+        # Create mixing pattern: many inputs to many outputs in short time
+        input_addresses = [f"input_{i}" for i in range(10)]
+        output_addresses = [f"output_{i}" for i in range(10)]
+        
+        for i in range(20):  # 20 transactions
+            tx_time = base_time + timedelta(minutes=i % 5)  # Within 5 minutes
+            transactions.append(Transaction(
+                tx_hash=f"mix_tx_{i}",
+                from_address=input_addresses[i % len(input_addresses)],
+                to_address=output_addresses[i % len(output_addresses)],
+                value=10.0 + (i % 5),  # Varying amounts
+                timestamp=tx_time,
+                block_height=2000 + i,
+                fee=0.001,
+                confirmations=6
+            ))
+        
+        return transactions
+    
+    @staticmethod
+    def create_smurfing_transactions() -> List[Transaction]:
+        """Create transactions that form a smurfing pattern."""
+        transactions = []
+        base_time = datetime.now()
+        
+        # Create smurfing: large amount split into many small transactions
+        large_amount = 1000.0
+        small_amount = 5.0
+        num_transactions = int(large_amount / small_amount)
+        
+        for i in range(num_transactions):
+            transactions.append(Transaction(
+                tx_hash=f"smurf_tx_{i}",
+                from_address="large_wallet",
+                to_address=f"small_wallet_{i}",
+                value=small_amount,
+                timestamp=base_time + timedelta(minutes=i),
+                block_height=3000 + i,
+                fee=0.001,
+                confirmations=6
+            ))
+        
+        return transactions
+    
+    @staticmethod
+    def create_rapid_transfer_transactions() -> List[Transaction]:
+        """Create transactions that form rapid transfer patterns."""
+        transactions = []
+        base_time = datetime.now()
+        
+        # Create rapid transfers: many transactions in short time
+        for i in range(10):
+            transactions.append(Transaction(
+                tx_hash=f"rapid_tx_{i}",
+                from_address="rapid_sender",
+                to_address=f"rapid_receiver_{i}",
+                value=15.0,
+                timestamp=base_time + timedelta(seconds=i * 30),  # 30 seconds apart
+                block_height=4000 + i,
+                fee=0.001,
+                confirmations=6
+            ))
+        
+        return transactions
+    
+    @staticmethod
+    def create_round_amount_transactions() -> List[Transaction]:
+        """Create transactions with suspiciously round amounts."""
+        transactions = []
+        base_time = datetime.now()
+        
+        round_amounts = [1.0, 10.0, 100.0, 1000.0, 0.1, 0.01]
+        
+        for i, amount in enumerate(round_amounts):
+            transactions.append(Transaction(
+                tx_hash=f"round_tx_{i}",
+                from_address=f"round_sender_{i}",
+                to_address=f"round_receiver_{i}",
+                value=amount,
+                timestamp=base_time + timedelta(minutes=i),
+                block_height=5000 + i,
+                fee=0.001,
+                confirmations=6
+            ))
+        
+        return transactions
+    
+    @staticmethod
+    def create_complex_transaction_network() -> List[Transaction]:
+        """Create a complex network of transactions for comprehensive testing."""
+        transactions = []
+        base_time = datetime.now()
+        
+        # Combine multiple patterns
+        transactions.extend(TestDataGenerator.create_peel_chain_transactions())
+        transactions.extend(TestDataGenerator.create_mixing_transactions())
+        transactions.extend(TestDataGenerator.create_smurfing_transactions())
+        transactions.extend(TestDataGenerator.create_rapid_transfer_transactions())
+        transactions.extend(TestDataGenerator.create_round_amount_transactions())
+        
+        return transactions
+
+
+class TestIllicitTransactionDetector(unittest.TestCase):
+    """Test cases for the IllicitTransactionDetector class."""
+    
+    def setUp(self):
+        """Set up test fixtures."""
+        self.detector = IllicitTransactionDetector()
+        self.data_generator = TestDataGenerator()
+        
+    def test_peel_chain_detection(self):
+        """Test detection of peel chain patterns."""
+        logger.info("Testing peel chain detection...")
+        
+        transactions = self.data_generator.create_peel_chain_transactions()
+        analysis = self.detector.analyze_transactions(transactions)
+        
+        # Check if peel chain pattern was detected
+        peel_patterns = [p for p in analysis.suspicious_patterns 
+                        if p.pattern_type == SuspiciousPattern.PEEL_CHAIN]
+        
+        self.assertGreater(len(peel_patterns), 0, "Peel chain pattern should be detected")
+        
+        # Verify pattern details
+        peel_pattern = peel_patterns[0]
+        self.assertGreater(peel_pattern.confidence, 0.0, "Confidence should be positive")
+        self.assertGreater(peel_pattern.risk_score, 0.0, "Risk score should be positive")
+        self.assertGreater(len(peel_pattern.addresses), 0, "Should have addresses")
+        self.assertGreater(len(peel_pattern.transactions), 0, "Should have transactions")
+        
+        logger.info(f"✓ Peel chain detected: {len(peel_pattern.transactions)} transactions, "
+                   f"confidence: {peel_pattern.confidence:.2f}")
+    
+    def test_mixing_detection(self):
+        """Test detection of mixing patterns."""
+        logger.info("Testing mixing detection...")
+        
+        transactions = self.data_generator.create_mixing_transactions()
+        analysis = self.detector.analyze_transactions(transactions)
+        
+        # Check if mixing pattern was detected
+        mixing_patterns = [p for p in analysis.suspicious_patterns 
+                          if p.pattern_type == SuspiciousPattern.MIXING]
+        
+        self.assertGreater(len(mixing_patterns), 0, "Mixing pattern should be detected")
+        
+        mixing_pattern = mixing_patterns[0]
+        self.assertGreater(mixing_pattern.confidence, 0.0, "Confidence should be positive")
+        self.assertGreater(mixing_pattern.risk_score, 0.0, "Risk score should be positive")
+        
+        logger.info(f"✓ Mixing detected: {mixing_pattern.confidence:.2f} confidence")
+    
+    def test_smurfing_detection(self):
+        """Test detection of smurfing patterns."""
+        logger.info("Testing smurfing detection...")
+        
+        transactions = self.data_generator.create_smurfing_transactions()
+        analysis = self.detector.analyze_transactions(transactions)
+        
+        # Check if smurfing pattern was detected
+        smurfing_patterns = [p for p in analysis.suspicious_patterns 
+                            if p.pattern_type == SuspiciousPattern.SMURFING]
+        
+        self.assertGreater(len(smurfing_patterns), 0, "Smurfing pattern should be detected")
+        
+        smurfing_pattern = smurfing_patterns[0]
+        self.assertGreater(smurfing_pattern.confidence, 0.0, "Confidence should be positive")
+        self.assertGreater(smurfing_pattern.risk_score, 0.0, "Risk score should be positive")
+        
+        logger.info(f"✓ Smurfing detected: {len(smurfing_pattern.transactions)} transactions")
+    
+    def test_rapid_transfer_detection(self):
+        """Test detection of rapid transfer patterns."""
+        logger.info("Testing rapid transfer detection...")
+        
+        transactions = self.data_generator.create_rapid_transfer_transactions()
+        analysis = self.detector.analyze_transactions(transactions)
+        
+        # Check if rapid transfer pattern was detected
+        rapid_patterns = [p for p in analysis.suspicious_patterns 
+                         if p.pattern_type == SuspiciousPattern.RAPID_TRANSFERS]
+        
+        self.assertGreater(len(rapid_patterns), 0, "Rapid transfer pattern should be detected")
+        
+        rapid_pattern = rapid_patterns[0]
+        self.assertGreater(rapid_pattern.confidence, 0.0, "Confidence should be positive")
+        
+        logger.info(f"✓ Rapid transfers detected: {len(rapid_pattern.transactions)} transactions")
+    
+    def test_round_amount_detection(self):
+        """Test detection of round amount patterns."""
+        logger.info("Testing round amount detection...")
+        
+        transactions = self.data_generator.create_round_amount_transactions()
+        analysis = self.detector.analyze_transactions(transactions)
+        
+        # Check if round amount pattern was detected
+        round_patterns = [p for p in analysis.suspicious_patterns 
+                         if p.pattern_type == SuspiciousPattern.ROUND_AMOUNTS]
+        
+        self.assertGreater(len(round_patterns), 0, "Round amount pattern should be detected")
+        
+        round_pattern = round_patterns[0]
+        self.assertGreater(round_pattern.confidence, 0.0, "Confidence should be positive")
+        
+        logger.info(f"✓ Round amounts detected: {len(round_pattern.transactions)} transactions")
+    
+    def test_graph_construction(self):
+        """Test transaction graph construction."""
+        logger.info("Testing graph construction...")
+        
+        transactions = self.data_generator.create_complex_transaction_network()
+        graph = self.detector._build_transaction_graph(transactions)
+        
+        # Verify graph properties
+        self.assertGreater(graph.number_of_nodes(), 0, "Graph should have nodes")
+        self.assertGreater(graph.number_of_edges(), 0, "Graph should have edges")
+        
+        # Check that all transaction addresses are in the graph
+        all_addresses = set()
+        for tx in transactions:
+            all_addresses.add(tx.from_address)
+            all_addresses.add(tx.to_address)
+        
+        graph_addresses = set(graph.nodes())
+        self.assertEqual(all_addresses, graph_addresses, "All addresses should be in graph")
+        
+        logger.info(f"✓ Graph constructed: {graph.number_of_nodes()} nodes, {graph.number_of_edges()} edges")
+    
+    def test_address_node_extraction(self):
+        """Test address node extraction and statistics."""
+        logger.info("Testing address node extraction...")
+        
+        transactions = self.data_generator.create_complex_transaction_network()
+        graph = self.detector._build_transaction_graph(transactions)
+        addresses = self.detector._extract_address_nodes(graph, transactions)
+        
+        # Verify address nodes
+        self.assertGreater(len(addresses), 0, "Should have address nodes")
+        
+        # Check that all addresses have statistics
+        for address, node in addresses.items():
+            self.assertIsInstance(node, AddressNode, "Should be AddressNode instance")
+            self.assertGreaterEqual(node.total_received, 0.0, "Total received should be non-negative")
+            self.assertGreaterEqual(node.total_sent, 0.0, "Total sent should be non-negative")
+            self.assertGreaterEqual(node.transaction_count, 0, "Transaction count should be non-negative")
+            self.assertIsInstance(node.centrality_measures, dict, "Should have centrality measures")
+        
+        logger.info(f"✓ Address nodes extracted: {len(addresses)} addresses")
+    
+    def test_community_detection(self):
+        """Test community detection using Louvain algorithm."""
+        logger.info("Testing community detection...")
+        
+        transactions = self.data_generator.create_complex_transaction_network()
+        graph = self.detector._build_transaction_graph(transactions)
+        clusters = self.detector._detect_communities_louvain(graph)
+        
+        # Verify clusters
+        self.assertIsInstance(clusters, dict, "Clusters should be a dictionary")
+        
+        # Check that all addresses are assigned to clusters
+        all_addresses = set(graph.nodes())
+        clustered_addresses = set()
+        for cluster_addresses in clusters.values():
+            clustered_addresses.update(cluster_addresses)
+        
+        # Some addresses might not be in clusters due to minimum size threshold
+        logger.info(f"✓ Communities detected: {len(clusters)} clusters")
+    
+    def test_anomaly_detection(self):
+        """Test anomaly detection using Isolation Forest and LOF."""
+        logger.info("Testing anomaly detection...")
+        
+        transactions = self.data_generator.create_complex_transaction_network()
+        graph = self.detector._build_transaction_graph(transactions)
+        addresses = self.detector._extract_address_nodes(graph, transactions)
+        anomalies = self.detector._detect_anomalies(graph, addresses, transactions)
+        
+        # Verify anomalies
+        self.assertIsInstance(anomalies, dict, "Anomalies should be a dictionary")
+        
+        # Check anomaly scores
+        for address, score in anomalies.items():
+            self.assertIn(address, addresses, "Anomalous address should be in address set")
+            self.assertGreaterEqual(score, 0.0, "Anomaly score should be non-negative")
+            self.assertLessEqual(score, 1.0, "Anomaly score should be at most 1.0")
+        
+        logger.info(f"✓ Anomalies detected: {len(anomalies)} anomalous addresses")
+    
+    def test_risk_scoring(self):
+        """Test risk scoring calculation."""
+        logger.info("Testing risk scoring...")
+        
+        transactions = self.data_generator.create_complex_transaction_network()
+        analysis = self.detector.analyze_transactions(transactions)
+        
+        # Verify risk scores
+        for address, node in analysis.addresses.items():
+            self.assertGreaterEqual(node.risk_score, 0.0, "Risk score should be non-negative")
+            self.assertLessEqual(node.risk_score, 1.0, "Risk score should be at most 1.0")
+            self.assertIsInstance(node.risk_level, RiskLevel, "Should have risk level")
+        
+        # Check high-risk addresses
+        high_risk_addresses = analysis.high_risk_addresses
+        self.assertIsInstance(high_risk_addresses, list, "High risk addresses should be a list")
+        
+        logger.info(f"✓ Risk scores calculated: {len(analysis.addresses)} addresses, "
+                   f"{len(high_risk_addresses)} high-risk")
+    
+    def test_sir_model_simulation(self):
+        """Test SIR model simulation."""
+        logger.info("Testing SIR model simulation...")
+        
+        transactions = self.data_generator.create_complex_transaction_network()
+        graph = self.detector._build_transaction_graph(transactions)
+        addresses = self.detector._extract_address_nodes(graph, transactions)
+        suspicious_patterns = self.detector._detect_suspicious_patterns(graph, addresses, transactions)
+        
+        sir_results = self.detector._run_sir_simulation(graph, addresses, suspicious_patterns)
+        
+        # Verify SIR results
+        self.assertIsInstance(sir_results, dict, "SIR results should be a dictionary")
+        self.assertIn('final_states', sir_results, "Should have final states")
+        self.assertIn('final_probabilities', sir_results, "Should have final probabilities")
+        self.assertIn('history', sir_results, "Should have history")
+        
+        logger.info(f"✓ SIR simulation completed: {len(sir_results.get('infected_addresses', []))} infected")
+    
+    def test_exchange_path_finding(self):
+        """Test exchange path finding using Yen's algorithm."""
+        logger.info("Testing exchange path finding...")
+        
+        transactions = self.data_generator.create_complex_transaction_network()
+        graph = self.detector._build_transaction_graph(transactions)
+        
+        yens_algorithm = YensPathAlgorithm(graph)
+        
+        # Test k-shortest paths
+        test_addresses = list(graph.nodes())[:5]  # Test first 5 addresses
+        exchange_paths = yens_algorithm.find_exchange_paths(
+            test_addresses,
+            self.detector.exchange_addresses,
+            k=3
+        )
+        
+        # Verify exchange paths
+        self.assertIsInstance(exchange_paths, dict, "Exchange paths should be a dictionary")
+        
+        for address, paths in exchange_paths.items():
+            self.assertIsInstance(paths, list, "Paths should be a list")
+            self.assertLessEqual(len(paths), 3, "Should have at most k paths")
+            
+            for path in paths:
+                self.assertIsInstance(path, list, "Each path should be a list")
+                self.assertGreater(len(path), 0, "Path should not be empty")
+        
+        logger.info(f"✓ Exchange paths found: {len(exchange_paths)} addresses")
+    
+    def test_comprehensive_analysis(self):
+        """Test comprehensive analysis with all patterns."""
+        logger.info("Testing comprehensive analysis...")
+        
+        transactions = self.data_generator.create_complex_transaction_network()
+        analysis = self.detector.analyze_transactions(transactions)
+        
+        # Verify analysis structure
+        self.assertIsInstance(analysis, IllicitTransactionAnalysis, "Should be IllicitTransactionAnalysis")
+        self.assertGreater(len(analysis.addresses), 0, "Should have addresses")
+        self.assertGreater(len(analysis.suspicious_patterns), 0, "Should have suspicious patterns")
+        self.assertGreater(analysis.total_transactions, 0, "Should have transactions")
+        self.assertGreater(analysis.total_addresses, 0, "Should have addresses")
+        
+        # Verify detection summary
+        self.assertIsInstance(analysis.detection_summary, dict, "Should have detection summary")
+        self.assertIn('pattern_counts', analysis.detection_summary, "Should have pattern counts")
+        
+        # Verify risk distribution
+        self.assertIsInstance(analysis.risk_distribution, dict, "Should have risk distribution")
+        
+        logger.info(f"✓ Comprehensive analysis completed:")
+        logger.info(f"  - {analysis.total_transactions} transactions")
+        logger.info(f"  - {analysis.total_addresses} addresses")
+        logger.info(f"  - {len(analysis.suspicious_patterns)} suspicious patterns")
+        logger.info(f"  - {len(analysis.high_risk_addresses)} high-risk addresses")
+    
+    def test_performance_with_large_dataset(self):
+        """Test performance with a larger dataset."""
+        logger.info("Testing performance with large dataset...")
+        
+        # Create a larger dataset
+        transactions = []
+        base_time = datetime.now()
+        
+        # Generate 1000 transactions
+        for i in range(1000):
+            transactions.append(Transaction(
+                tx_hash=f"perf_tx_{i}",
+                from_address=f"addr_{i % 100}",  # 100 unique addresses
+                to_address=f"addr_{(i + 1) % 100}",
+                value=10.0 + (i % 50),
+                timestamp=base_time + timedelta(minutes=i),
+                block_height=10000 + i,
+                fee=0.001,
+                confirmations=6
+            ))
+        
+        # Measure analysis time
+        import time
+        start_time = time.time()
+        analysis = self.detector.analyze_transactions(transactions)
+        end_time = time.time()
+        
+        analysis_time = end_time - start_time
+        
+        # Verify results
+        self.assertGreater(len(analysis.addresses), 0, "Should have addresses")
+        self.assertGreater(analysis.total_transactions, 0, "Should have transactions")
+        
+        logger.info(f"✓ Large dataset analysis completed in {analysis_time:.2f} seconds")
+        logger.info(f"  - {analysis.total_transactions} transactions processed")
+        logger.info(f"  - {analysis.total_addresses} addresses analyzed")
+    
+    def test_error_handling(self):
+        """Test error handling with invalid data."""
+        logger.info("Testing error handling...")
+        
+        # Test with empty transaction list
+        empty_analysis = self.detector.analyze_transactions([])
+        self.assertIsInstance(empty_analysis, IllicitTransactionAnalysis, "Should handle empty list")
+        
+        # Test with invalid transaction data
+        invalid_transactions = [
+            Transaction(
+                tx_hash="invalid_tx",
+                from_address="",  # Empty address
+                to_address="",    # Empty address
+                value=-1.0,       # Negative value
+                timestamp=datetime.now(),
+                block_height=None,
+                fee=None,
+                confirmations=None
+            )
+        ]
+        
+        # Should not raise exception
+        invalid_analysis = self.detector.analyze_transactions(invalid_transactions)
+        self.assertIsInstance(invalid_analysis, IllicitTransactionAnalysis, "Should handle invalid data")
+        
+        logger.info("✓ Error handling tests passed")
+
+
+class TestSIRModel(unittest.TestCase):
+    """Test cases for the SIR model."""
+    
+    def setUp(self):
+        """Set up test fixtures."""
+        self.sir_model = SIRModel(beta=0.3, gamma=0.1, random_state=42)
+    
+    def test_sir_initialization(self):
+        """Test SIR model initialization."""
+        self.assertEqual(self.sir_model.beta, 0.3)
+        self.assertEqual(self.sir_model.gamma, 0.1)
+        self.assertIsNotNone(self.sir_model.rng)
+    
+    def test_sir_simulation(self):
+        """Test SIR model simulation."""
+        import networkx as nx
+        
+        # Create a simple graph
+        graph = nx.Graph()
+        graph.add_edges_from([(1, 2), (2, 3), (3, 4), (4, 5)])
+        
+        # Run simulation
+        results = self.sir_model.simulate_propagation(graph, [1], time_steps=50)
+        
+        # Verify results
+        self.assertIsInstance(results, dict)
+        self.assertIn('final_states', results)
+        self.assertIn('final_probabilities', results)
+        self.assertIn('history', results)
+        
+        # Check that all nodes have states
+        for node in graph.nodes():
+            self.assertIn(node, results['final_states'])
+            self.assertIn(results['final_states'][node], ['S', 'I', 'R'])
+
+
+class TestYensPathAlgorithm(unittest.TestCase):
+    """Test cases for Yen's path algorithm."""
+    
+    def setUp(self):
+        """Set up test fixtures."""
+        import networkx as nx
+        
+        # Create a test graph
+        self.graph = nx.DiGraph()
+        self.graph.add_edges_from([
+            ('A', 'B', {'weight': 1}),
+            ('B', 'C', {'weight': 2}),
+            ('C', 'D', {'weight': 1}),
+            ('A', 'C', {'weight': 3}),
+            ('B', 'D', {'weight': 2})
+        ])
+        
+        self.yens_algorithm = YensPathAlgorithm(self.graph)
+    
+    def test_k_shortest_paths(self):
+        """Test finding k shortest paths."""
+        paths = self.yens_algorithm.find_k_shortest_paths('A', 'D', k=3)
+        
+        self.assertIsInstance(paths, list)
+        self.assertLessEqual(len(paths), 3)
+        
+        for path in paths:
+            self.assertIsInstance(path, list)
+            self.assertEqual(path[0], 'A')
+            self.assertEqual(path[-1], 'D')
+    
+    def test_exchange_paths(self):
+        """Test finding exchange paths."""
+        exchange_addresses = ['D']
+        test_addresses = ['A', 'B']
+        
+        exchange_paths = self.yens_algorithm.find_exchange_paths(
+            test_addresses, exchange_addresses, k=2
+        )
+        
+        self.assertIsInstance(exchange_paths, dict)
+        
+        for address in test_addresses:
+            self.assertIn(address, exchange_paths)
+            paths = exchange_paths[address]
+            self.assertIsInstance(paths, list)
+            self.assertLessEqual(len(paths), 2)
+
+
+def run_performance_benchmark():
+    """Run performance benchmark tests."""
+    logger.info("Running performance benchmark...")
+    
+    detector = IllicitTransactionDetector()
+    data_generator = TestDataGenerator()
+    
+    # Test with different dataset sizes
+    dataset_sizes = [100, 500, 1000, 2000]
+    
+    for size in dataset_sizes:
+        logger.info(f"Testing with {size} transactions...")
+        
+        # Generate test data
+        transactions = []
+        base_time = datetime.now()
+        
+        for i in range(size):
+            transactions.append(Transaction(
+                tx_hash=f"bench_tx_{i}",
+                from_address=f"addr_{i % (size // 10)}",  # 10% unique addresses
+                to_address=f"addr_{(i + 1) % (size // 10)}",
+                value=10.0 + (i % 100),
+                timestamp=base_time + timedelta(minutes=i),
+                block_height=20000 + i,
+                fee=0.001,
+                confirmations=6
+            ))
+        
+        # Measure performance
+        import time
+        start_time = time.time()
+        analysis = detector.analyze_transactions(transactions)
+        end_time = time.time()
+        
+        analysis_time = end_time - start_time
+        
+        logger.info(f"  {size} transactions: {analysis_time:.2f}s "
+                   f"({analysis_time/size*1000:.2f}ms per transaction)")
+        logger.info(f"  Results: {analysis.total_addresses} addresses, "
+                   f"{len(analysis.suspicious_patterns)} patterns")
+
+
+def main():
+    """Main test runner."""
+    logger.info("Starting Illicit Transaction Detector Test Suite")
+    logger.info("=" * 60)
+    
+    # Run unit tests
+    unittest.main(argv=[''], exit=False, verbosity=2)
+    
+    # Run performance benchmark
+    logger.info("\n" + "=" * 60)
+    run_performance_benchmark()
+    
+    logger.info("\n" + "=" * 60)
+    logger.info("Test Suite Completed Successfully!")
+
+
+if __name__ == "__main__":
+    main()

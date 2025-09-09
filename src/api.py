@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 from .chainbreak import ChainBreak
 from .api_frontend import bp as frontend_bp
+from api_illicit_analysis import register_illicit_analysis_routes
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,148 @@ CORS(app, resources={
 })
 
 app.register_blueprint(frontend_bp)
+
+# Register illicit analysis routes
+register_illicit_analysis_routes(app)
+
+# Add Louvain community detection endpoint
+@app.route('/api/run-louvain', methods=['POST'])
+def run_louvain():
+    """Run Louvain community detection algorithm on graph data."""
+    try:
+        logger.info("Louvain endpoint called")
+        data = request.get_json()
+        logger.info(f"Received data type: {type(data)}")
+        logger.info(f"Received data content: {data}")
+        
+        if not data:
+            logger.error("No data received")
+            return jsonify({
+                'success': False,
+                'error': 'No data received'
+            }), 400
+            
+        if 'nodes' not in data or 'edges' not in data:
+            logger.error(f"Missing required fields. Keys: {list(data.keys()) if data else 'None'}")
+            return jsonify({
+                'success': False,
+                'error': 'Missing nodes or edges data'
+            }), 400
+        
+        nodes = data['nodes']
+        edges = data['edges']
+        
+        logger.info(f"Received {len(nodes)} nodes and {len(edges)} edges for Louvain analysis")
+        
+        # Validate and log node structure
+        if nodes and len(nodes) > 0:
+            logger.info(f"Sample node structure: {nodes[0]}")
+        
+        # Import required modules
+        logger.info("Importing networkx...")
+        import networkx as nx
+        logger.info("Importing community...")
+        import community as community_louvain
+        logger.info("Imports successful")
+        
+        # Create NetworkX graph
+        G = nx.Graph()
+        
+        # Add nodes with validation
+        for node in nodes:
+            if not isinstance(node, dict):
+                logger.warning(f"Invalid node structure: {node}")
+                continue
+                
+            node_id = node.get('id')
+            if not node_id:
+                logger.warning(f"Node missing id field: {node}")
+                continue
+                
+            G.add_node(node_id)
+        
+        # Add edges with validation
+        for edge in edges:
+            if not isinstance(edge, dict):
+                logger.warning(f"Invalid edge structure: {edge}")
+                continue
+                
+            source = edge.get('source')
+            target = edge.get('target')
+            
+            if not source or not target:
+                logger.warning(f"Edge missing source or target: {edge}")
+                continue
+                
+            if source in G.nodes and target in G.nodes:
+                G.add_edge(source, target)
+            else:
+                logger.warning(f"Edge references non-existent nodes: {source} -> {target}")
+        
+        logger.info(f"Created graph with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges")
+        
+        # Check if graph has nodes
+        if G.number_of_nodes() == 0:
+            logger.warning("Graph has no nodes, returning empty communities")
+            return jsonify({
+                'success': True,
+                'communities': {},
+                'modularity': 0.0,
+                'community_count': 0,
+                'node_count': 0,
+                'edge_count': 0
+            })
+        
+        # Run Louvain algorithm
+        try:
+            logger.info("Starting Louvain algorithm...")
+            communities = community_louvain.best_partition(G)
+            logger.info("Louvain algorithm completed successfully")
+        except Exception as e:
+            logger.error(f"Louvain algorithm failed: {e}")
+            logger.error(f"Error type: {type(e)}")
+            logger.error(f"Graph info: nodes={G.number_of_nodes()}, edges={G.number_of_edges()}")
+            # Fallback to networkx implementation
+            try:
+                logger.info("Trying NetworkX fallback...")
+                import networkx.algorithms.community as nx_community
+                louvain_communities = nx_community.greedy_modularity_communities(G)
+                communities = {node: i for i, community in enumerate(louvain_communities) for node in community}
+                logger.info("Fallback community detection completed")
+            except Exception as fallback_error:
+                logger.error(f"Fallback community detection also failed: {fallback_error}")
+                logger.error(f"Fallback error type: {type(fallback_error)}")
+                # Last resort: assign each node to its own community
+                communities = {node: i for i, node in enumerate(G.nodes())}
+                logger.info("Using last resort: each node in its own community")
+        
+        # Calculate modularity safely
+        try:
+            modularity = community_louvain.modularity(communities, G) if hasattr(community_louvain, 'modularity') else 0.0
+        except Exception as e:
+            logger.warning(f"Modularity calculation failed: {e}")
+            modularity = 0.0
+        
+        community_count = len(set(communities.values()))
+        logger.info(f"Louvain algorithm completed: {community_count} communities, modularity: {modularity:.3f}")
+        
+        return jsonify({
+            'success': True,
+            'communities': communities,
+            'modularity': modularity,
+            'community_count': community_count,
+            'node_count': G.number_of_nodes(),
+            'edge_count': G.number_of_edges()
+        })
+        
+    except Exception as e:
+        logger.error(f"Louvain algorithm failed with error: {e}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        return jsonify({
+            'success': False,
+            'error': f"Server error: {str(e)}"
+        }), 500
 
 # Unified data directory - use data/graph (consistent with actual structure)
 GRAPH_DIR = Path("data/graph")
@@ -131,7 +274,7 @@ def get_backend_mode():
                 "success": True,
                 "data": {
                     "backend_mode": chainbreak.get_backend_mode(),
-                    "neo4j_available": chainbreak.is_neo4j_available()
+                    "neo4j_available": chainbreak.is_backend_available()
                 }
             })
         else:

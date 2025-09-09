@@ -22,8 +22,19 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '', illicitAddresse
   const [zoomLevel, setZoomLevel] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  const normalizeNodeSize = useCallback((size) => {
+    // Normalize node sizes to reasonable ranges
+    if (typeof size !== 'number' || isNaN(size)) return 8;
+    if (size < 1) return 4;
+    if (size > 50) return 12; // Cap very large sizes
+    return Math.min(size, 12);
+  }, []);
+
   const initializeGraph = useCallback(() => {
-    if (!graphData || !containerRef.current) return null;
+    if (!graphData) {
+      logger.warn('No graph data available for initialization');
+      return null;
+    }
     try {
       logger.debug('Initializing graph with data', {
         nodes: graphData.nodes?.length || 0,
@@ -34,7 +45,7 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '', illicitAddresse
         .map(n => ({
           id: n.id,
           label: n.label || n.id,
-          size: 8,
+          size: normalizeNodeSize(n.size || 8), // Normalize initial size
           color: n.color || '#6366f1',
           x: n.x ?? Math.random() * 1000,
           y: n.y ?? Math.random() * 1000,
@@ -76,13 +87,23 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '', illicitAddresse
   }, [graphData]);
 
   const initializeD3 = useCallback((graph) => {
-    if (!graph || !containerRef.current) return null;
+    if (!graph) {
+      logger.error('Cannot initialize D3: missing graph data');
+      return null;
+    }
+    
+    if (!containerRef.current) {
+      logger.error('Cannot initialize D3: container not ready yet');
+      return null;
+    }
     try {
       const container = containerRef.current;
       const width = container.clientWidth;
       const height = container.clientHeight;
+      logger.info('D3 initialization starting', { width, height, nodeCount: graph.nodes?.length, edgeCount: graph.edges?.length });
+      
       if (width === 0 || height === 0) {
-        logger.warn('Container has zero dimensions, postponing D3 initialization');
+        logger.warn('Container has zero dimensions, postponing D3 initialization', { width, height });
         return null;
       }
       d3.select(container).selectAll('svg').remove();
@@ -134,9 +155,19 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '', illicitAddresse
         .data(graph.nodes)
         .join('circle')
         .attr('r', d => {
-          if (d.type === 'address') return Math.max(6, Math.min(15, (d.balance || 0) / 1000000000 + 6));
-          if (d.type === 'transaction') return Math.max(4, Math.min(12, (d.total_input_value || 0) / 1000000000 + 4));
-          return d.size || 8;
+          // More reasonable node sizing
+          if (d.type === 'address') {
+            const balance = d.balance || 0;
+            // Scale based on balance: 6-12 pixels for addresses
+            return Math.max(6, Math.min(12, 6 + (balance / 100000000) * 0.5));
+          }
+          if (d.type === 'transaction') {
+            const value = d.total_input_value || 0;
+            // Scale based on transaction value: 4-10 pixels for transactions
+            return Math.max(4, Math.min(10, 4 + (value / 100000000) * 0.3));
+          }
+          // Default size for other node types
+          return Math.min(d.size || 8, 10);
         })
         .attr('fill', d => {
           // Check if address is illicit
@@ -224,7 +255,18 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '', illicitAddresse
         .force('link', d3.forceLink(graph.edges).id(d => d.id).distance(60).strength(0.1))
         .force('charge', d3.forceManyBody().strength(-80))
         .force('center', d3.forceCenter(width / 2, height / 2))
-        .force('collision', d3.forceCollide().radius(d => (d.size || 8) + 2));
+        .force('collision', d3.forceCollide().radius(d => {
+          // Use same radius calculation as visual nodes
+          if (d.type === 'address') {
+            const balance = d.balance || 0;
+            return Math.max(6, Math.min(12, 6 + (balance / 100000000) * 0.5)) + 2;
+          }
+          if (d.type === 'transaction') {
+            const value = d.total_input_value || 0;
+            return Math.max(4, Math.min(10, 4 + (value / 100000000) * 0.3)) + 2;
+          }
+          return Math.min(d.size || 8, 10) + 2;
+        }));
       simulation.on('tick', () => {
         links
           .attr('x1', d => d.source.x)
@@ -280,15 +322,81 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '', illicitAddresse
   const runLouvainAlgorithm = useCallback(async () => {
     try {
       setIsLoading(true);
-      logger.info('Louvain community detection not implemented with D3');
-      setTimeout(() => {
+      logger.info('Running Louvain community detection algorithm');
+      
+      // Check if we have valid graph data
+      if (!graphRef.current || !graphRef.current.nodes || graphRef.current.nodes.length === 0) {
+        logger.error('No valid graph data available for Louvain analysis');
+        setError('No graph data available. Please load a graph first.');
         setIsLoading(false);
-      }, 200);
+        return;
+      }
+      
+      logger.info(`Sending ${graphRef.current.nodes.length} nodes and ${graphRef.current.edges.length} edges to Louvain API`);
+      
+      // Call backend API to run Louvain community detection
+      const response = await fetch('/api/run-louvain', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nodes: graphRef.current.nodes.map(node => ({
+            id: node.id,
+            type: node.type || 'address',
+            balance: node.balance || 0,
+            total_input_value: node.total_input_value || 0
+          })),
+          edges: graphRef.current.edges.map(edge => ({
+            source: edge.source,
+            target: edge.target
+          }))
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      logger.info('Louvain community detection completed', result);
+      
+      if (result.success && result.communities) {
+        setCommunities(result.communities);
+        
+        // Update node colors based on communities
+        const updatedNodes = graphRef.current.nodes.map(node => {
+          const communityId = result.communities[node.id] || 0;
+          const communityColors = [
+            '#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6',
+            '#06b6d4', '#84cc16', '#f97316', '#ec4899', '#6366f1'
+          ];
+          const color = communityColors[communityId % communityColors.length];
+          
+          return {
+            ...node,
+            color: color,
+            community: communityId
+          };
+        });
+        
+        graphRef.current = { ...graphRef.current, nodes: updatedNodes };
+        
+        // Re-render the graph with community colors
+        initializeD3(graphRef.current);
+        
+        logger.info(`Louvain algorithm completed: ${new Set(Object.values(result.communities)).size} communities detected`);
+      } else {
+        throw new Error(result.error || 'Community detection failed');
+      }
+      
+      setIsLoading(false);
     } catch (err) {
       logger.error('Louvain algorithm failed', err);
       setError(`Community detection failed: ${err.message}`);
+      setIsLoading(false);
     }
-  }, []);
+  }, [initializeD3]);
 
   const resetGraph = useCallback(() => {
     if (!graphRef.current) return;
@@ -308,6 +416,52 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '', illicitAddresse
       setError(`Reset failed: ${err.message}`);
     }
   }, [graphData, initializeD3]);
+
+  const forceInitialize = useCallback(() => {
+    logger.info('Force initializing graph...');
+    setError(null);
+    setContainerReady(false);
+    
+    if (!graphData) {
+      setError('No graph data available for initialization');
+      return;
+    }
+    
+    // Force container to be ready by checking dimensions
+    const forceContainerReady = () => {
+      if (containerRef.current) {
+        const width = containerRef.current.clientWidth;
+        const height = containerRef.current.clientHeight;
+        logger.info(`Container dimensions: ${width}x${height}`);
+        
+        if (width > 0 && height > 0) {
+          logger.info('Container has valid dimensions, proceeding with initialization');
+          const graph = initializeGraph();
+          if (graph) {
+            logger.info('Graph data initialized, attempting D3 setup');
+            const svg = initializeD3(graph);
+            if (svg) {
+              setContainerReady(true);
+              logger.info('Force initialization completed successfully');
+            } else {
+              setError('Force initialization failed - D3 setup error');
+            }
+          } else {
+            setError('Force initialization failed - graph data error');
+          }
+        } else {
+          logger.warn('Container has zero dimensions, retrying...');
+          setTimeout(forceContainerReady, 200);
+        }
+      } else {
+        logger.error('Container ref is null');
+        setError('Force initialization failed - container not found');
+      }
+    };
+    
+    // Start the force initialization
+    setTimeout(forceContainerReady, 100);
+  }, [graphData, initializeGraph, initializeD3]);
 
   const exportAsImage = useCallback(() => {
     if (!svgRef.current) return;
@@ -389,19 +543,55 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '', illicitAddresse
     if (!graphData) return;
     setError(null);
     setContainerReady(false);
-    const graph = initializeGraph();
-    if (graph) {
-      const svg = initializeD3(graph);
-      if (svg) {
-        setupResizeObserver();
-        setTimeout(() => {
-          if (simulationRef.current && containerRef.current && containerRef.current.clientWidth > 0 && containerRef.current.clientHeight > 0) {
-            runForceAtlas2();
-          }
-        }, 300);
+    
+    // Add timeout to prevent infinite loading
+    const loadingTimeout = setTimeout(() => {
+      if (!containerReady) {
+        logger.error('Graph initialization timeout - forcing container ready');
+        setContainerReady(true);
+        setError('Graph initialization timed out. Try clicking "Force Init" button or refresh the page.');
       }
-    }
+    }, 15000); // 15 second timeout
+    
+    // Wait for container to be ready before initializing
+    const checkContainer = () => {
+      if (containerRef.current && containerRef.current.clientWidth > 0 && containerRef.current.clientHeight > 0) {
+        logger.info('Container is ready, initializing graph');
+        const graph = initializeGraph();
+        if (graph) {
+          logger.info('Graph initialized, starting D3 setup');
+          const svg = initializeD3(graph);
+          if (svg) {
+            logger.info('D3 setup completed, setting up resize observer');
+            setContainerReady(true);
+            setupResizeObserver();
+            setTimeout(() => {
+              if (simulationRef.current && containerRef.current && containerRef.current.clientWidth > 0 && containerRef.current.clientHeight > 0) {
+                logger.info('Starting force simulation');
+                runForceAtlas2();
+              } else {
+                logger.warn('Cannot start force simulation - missing refs or zero dimensions');
+              }
+            }, 300);
+          } else {
+            logger.error('D3 setup failed');
+            setError('Failed to initialize graph renderer');
+          }
+        } else {
+          logger.error('Graph initialization failed');
+          setError('Failed to initialize graph data');
+        }
+      } else {
+        logger.warn('Container not ready yet, retrying in 100ms');
+        setTimeout(checkContainer, 100);
+      }
+    };
+    
+    // Start checking for container readiness
+    checkContainer();
+    
     return () => {
+      clearTimeout(loadingTimeout);
       if (roRef.current) {
         try { roRef.current.disconnect(); } catch (e) { /* ignore */ }
         roRef.current = null;
@@ -528,7 +718,7 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '', illicitAddresse
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={runLouvainAlgorithm}
-          disabled={isLoading || !containerReady}
+          disabled={isLoading || !containerReady || !graphRef.current?.nodes?.length}
           className="flex items-center gap-2 px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {isLoading ? (
@@ -547,6 +737,16 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '', illicitAddresse
         >
           <RotateCcw className="w-4 h-4" />
           Reset
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={forceInitialize}
+          disabled={isLoading}
+          className="flex items-center gap-2 px-3 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <Play className="w-4 h-4" />
+          Force Init
         </motion.button>
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -640,13 +840,18 @@ const GraphRenderer = ({ graphData, onNodeClick, className = '', illicitAddresse
         </div>
 
         {communities && (
-          <div className="bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-            <p className="text-sm font-medium text-gray-700">
+          <div className="bg-gray-800/90 backdrop-blur-sm rounded-lg p-3 shadow-lg border border-gray-700/50">
+            <h4 className="text-sm font-semibold text-white mb-2">Community Detection</h4>
+            <p className="text-sm text-gray-300">
               Communities: {new Set(Object.values(communities)).size}
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-400">
               Nodes: {Object.keys(communities).length}
             </p>
+            <div className="mt-2 text-xs text-gray-400">
+              <p>• Nodes colored by community</p>
+              <p>• Same color = same community</p>
+            </div>
           </div>
         )}
       </div>

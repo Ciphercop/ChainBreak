@@ -5,7 +5,7 @@ Network visualization using Matplotlib and Gephi integration
 
 import matplotlib.pyplot as plt
 import networkx as nx
-from neo4j import GraphDatabase
+# from neo4j import GraphDatabase  # Removed Neo4j dependency
 import logging
 from typing import Dict, Any, List, Optional
 import os
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class NetworkVisualizer:
     """Creates network visualizations for transaction networks"""
     
-    def __init__(self, neo4j_driver):
+    def __init__(self, neo4j_driver=None):
         self.driver = neo4j_driver
         
     def visualize_address_network(self, address: str, depth: int = 2, max_nodes: int = 100) -> nx.DiGraph:
@@ -290,7 +290,7 @@ class NetworkVisualizer:
 class GephiExporter:
     """Exports transaction networks to Gephi format"""
     
-    def __init__(self, neo4j_driver):
+    def __init__(self, neo4j_driver=None):
         self.driver = neo4j_driver
         
     def export_to_gephi(self, output_file: str = 'transaction_network.gexf', 
@@ -367,7 +367,7 @@ class GephiExporter:
 class ChartGenerator:
     """Generates various charts and statistics"""
     
-    def __init__(self, neo4j_driver):
+    def __init__(self, neo4j_driver=None):
         self.driver = neo4j_driver
     
     def create_risk_distribution_chart(self, risk_summary: Dict[str, Any]) -> None:

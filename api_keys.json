@@ -1,0 +1,18 @@
+{
+  "chainalysis": [
+    {
+      "key": "db373a00f1f63693d7ccf144ee781787865310acda3870ca8abfb09135cbfc58",
+      "is_active": true,
+      "error_count": 0,
+      "max_errors": 5
+    }
+  ],
+  "blockchain_info": [
+    {
+      "key": "free_tier",
+      "is_active": true,
+      "error_count": 0,
+      "max_errors": 10
+    }
+  ]
+}

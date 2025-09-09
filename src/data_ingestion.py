@@ -239,6 +239,35 @@ class JSONDataIngestor(BaseDataIngestor):
         """JSON ingestor is always operational"""
         return True
     
+    def get_statistics(self) -> Dict[str, Any]:
+        """Get statistics from JSON data"""
+        try:
+            address_count = 0
+            transaction_count = 0
+            
+            for json_file in self.data_dir.glob("*.json"):
+                try:
+                    with open(json_file, 'r') as f:
+                        data = json.load(f)
+                        if 'meta' in data and 'address' in data['meta']:
+                            address_count += 1
+                        if 'transactions' in data:
+                            transaction_count += len(data['transactions'])
+                except Exception:
+                    continue
+            
+            return {
+                'node_counts': {
+                    'address_count': address_count,
+                    'transaction_count': transaction_count
+                },
+                'relationship_count': transaction_count,  # Each transaction is a relationship
+                'data_files': len(list(self.data_dir.glob("*.json")))
+            }
+        except Exception as e:
+            logger.warning(f"Error getting JSON statistics: {e}")
+            return {}
+    
     def _has_address_data(self, address: str) -> bool:
         """Check if data exists for an address"""
         for json_file in self.data_dir.glob("*.json"):

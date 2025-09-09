@@ -1,0 +1,28 @@
+{
+  "whitelist": [
+    {
+      "identifier": "1NDyJtNTjmwk5xPNhjgAMu4HDHigtobu1s",
+      "entry_type": "exchange",
+      "reason": "Known Binance exchange address",
+      "confidence": 0.95,
+      "added_at": "2025-09-09T13:25:51.485191",
+      "expires_at": null,
+      "metadata": {
+        "exchange": "Binance",
+        "verified": true
+      }
+    },
+    {
+      "identifier": "1FeexV6bAHb8ybZjqQMjJrcCrHGW9sb6uF",
+      "entry_type": "exchange",
+      "reason": "Known Binance exchange address",
+      "confidence": 0.95,
+      "added_at": "2025-09-09T13:25:51.485205",
+      "expires_at": null,
+      "metadata": {
+        "exchange": "Binance",
+        "verified": true
+      }
+    }
+  ]
+}

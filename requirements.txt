@@ -56,6 +56,11 @@ asyncio
 cryptography
 pycryptodome
 
+# Illicit Transaction Detection Dependencies
+community  # python-louvain for community detection
+plotly  # Interactive visualizations
+seaborn  # Statistical data visualization
+
 # Database drivers
 psycopg2-binary
 sqlalchemy

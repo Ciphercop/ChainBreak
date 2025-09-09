@@ -1,0 +1,3651 @@
+{
+  "nodes": [
+    {
+      "id": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "x": -0.23399551305907085,
+      "y": -0.2895297643634239,
+      "risk_level": "LOW",
+      "risk_score": 0.39781890609614173,
+      "transaction_count": 56,
+      "total_volume": 31.5,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.6005139306281997,
+      "suspicious_tx_count": 56,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 57,
+      "centrality": {
+        "degree_centrality": 0.7285714285714285,
+        "betweenness_centrality": 0.7556935817805382,
+        "eigenvector_centrality": 0.7047238524173538,
+        "closeness_centrality": 0.7522504892367905
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+      "x": -0.02781902625125931,
+      "y": -0.4152288586865478,
+      "risk_level": "LOW",
+      "risk_score": 0.384398228034908,
+      "transaction_count": 26,
+      "total_volume": 46.9,
+      "patterns": [],
+      "community_id": 1,
+      "illicit_score": 0.5066185122797748,
+      "suspicious_tx_count": 26,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.42332797994060417,
+      "transaction_anomalies": 19,
+      "centrality": {
+        "degree_centrality": 0.17142857142857143,
+        "betweenness_centrality": 0.25507246376811593,
+        "eigenvector_centrality": 0.12529826648991138,
+        "closeness_centrality": 0.4903061224489796
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "1NDyJtNTjmwk5xPNhjgAMu4HDHigtobu1s",
+      "x": 0.9673189968738839,
+      "y": -0.43528485448623233,
+      "risk_level": "LOW",
+      "risk_score": 0.38334828678872757,
+      "transaction_count": 10,
+      "total_volume": 5.8999999999999995,
+      "patterns": [],
+      "community_id": 1,
+      "illicit_score": 0.4751899408512033,
+      "suspicious_tx_count": 10,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.42332797994060417,
+      "transaction_anomalies": 8,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.017498609273833256,
+        "closeness_centrality": 0.3174236168455821
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "1FeexV6bAHb8ybZjqQMjJrcCrHGW9sb6uF",
+      "x": -0.13724438388795646,
+      "y": -0.46046532310455823,
+      "risk_level": "MEDIUM",
+      "risk_score": 0.40458912290615034,
+      "transaction_count": 16,
+      "total_volume": 1117.11,
+      "patterns": [],
+      "community_id": 2,
+      "illicit_score": 0.5156591841474428,
+      "suspicious_tx_count": 16,
+      "pattern_types": [
+        "rapid_transfers",
+        "round_amounts"
+      ],
+      "community_risk": 0.3565918414744279,
+      "transaction_anomalies": 10,
+      "centrality": {
+        "degree_centrality": 0.09999999999999999,
+        "betweenness_centrality": 0.008695652173913044,
+        "eigenvector_centrality": 2.752234508587334e-16,
+        "closeness_centrality": 0.1
+      },
+      "color": "#FFCC00",
+      "size": 10
+    },
+    {
+      "id": "1P5ZEDWTKTFGxQjZphgWPQUpe554WKDfHQ",
+      "x": -0.6429690702689426,
+      "y": -0.23184145136300513,
+      "risk_level": "LOW",
+      "risk_score": 0.38335717262601426,
+      "transaction_count": 10,
+      "total_volume": 5.999999999999999,
+      "patterns": [],
+      "community_id": 2,
+      "illicit_score": 0.4685163270045857,
+      "suspicious_tx_count": 10,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.3565918414744279,
+      "transaction_anomalies": 8,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 1.0402468656360203e-16,
+        "closeness_centrality": 0.05384615384615385
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_000",
+      "x": -0.846541515116835,
+      "y": 0.4815886051602076,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_001",
+      "x": 0.5209245723257014,
+      "y": -0.8024782843249247,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_002",
+      "x": -0.4746506627955144,
+      "y": -1.0916454623298857,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_003",
+      "x": 0.6066190123470883,
+      "y": -0.7096269078128309,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_004",
+      "x": -0.032696734845276076,
+      "y": -1.210041259474474,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_005",
+      "x": -1.1554750422936049,
+      "y": -0.7999859269145249,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_006",
+      "x": -1.1798348193372974,
+      "y": 0.23858316183219613,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_007",
+      "x": -1.2653596319427207,
+      "y": -0.32873568862063685,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_008",
+      "x": 0.45952033334166115,
+      "y": -0.6843882222387742,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_009",
+      "x": -0.7856496636975763,
+      "y": -1.0785743301817747,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_010",
+      "x": 0.06022291304491961,
+      "y": 0.5983155860273124,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_011",
+      "x": 0.42658929953686514,
+      "y": 0.4188946492717001,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_012",
+      "x": 0.4865069964714073,
+      "y": 0.2756601003414206,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_013",
+      "x": -0.28948312100634827,
+      "y": 0.6660071935350924,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_014",
+      "x": -0.38535839787859993,
+      "y": 0.6346668211932407,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_015",
+      "x": 0.3641379124152175,
+      "y": 0.31287374201669155,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_016",
+      "x": 0.3776591823204672,
+      "y": -0.9162906931460753,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_017",
+      "x": -0.5145546944754749,
+      "y": -1.246353652966888,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_018",
+      "x": -1.0465754088616468,
+      "y": 0.4222184005231287,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_019",
+      "x": 0.49175281273934696,
+      "y": -0.9246578309561484,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_020",
+      "x": 0.3103684588607771,
+      "y": 0.45759681446771244,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_021",
+      "x": 0.19680743885372642,
+      "y": -1.1327948685527847,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_022",
+      "x": -0.6648742810920738,
+      "y": 0.608710021169588,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_023",
+      "x": -1.1434200075278813,
+      "y": 0.06844933072551518,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_024",
+      "x": 0.3738421567277291,
+      "y": -1.0468464851891686,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_025",
+      "x": 0.5854188943275196,
+      "y": -0.48054453678672204,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_026",
+      "x": -1.2265792460059681,
+      "y": -0.42032186651043796,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_027",
+      "x": -0.6931975691444994,
+      "y": 0.40044492197812215,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_028",
+      "x": -1.065312403311872,
+      "y": 0.30362296889354007,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_029",
+      "x": -1.2449701618581712,
+      "y": -0.5153711582691304,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_030",
+      "x": 0.5803960592505601,
+      "y": -0.22266773200997708,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_031",
+      "x": 0.6339230508813436,
+      "y": -0.05798863020127795,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_032",
+      "x": 0.10981231752404147,
+      "y": -1.2326165439073866,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_033",
+      "x": -0.4088342179262273,
+      "y": -1.3,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_034",
+      "x": 0.6686852364871927,
+      "y": -0.31525182035720195,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_035",
+      "x": -1.2388226904024653,
+      "y": -0.03947827885726657,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_036",
+      "x": -0.03332859826591883,
+      "y": 0.5954783435449567,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_037",
+      "x": -0.548343116449843,
+      "y": 0.6212255477550077,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_038",
+      "x": -0.4661931221999127,
+      "y": 0.5765521186189357,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_039",
+      "x": -0.8674465372288047,
+      "y": -1.1389790637934498,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_040",
+      "x": 0.6216743850270716,
+      "y": -0.5900220651541256,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_041",
+      "x": 0.5718202324930688,
+      "y": 0.18567218661082352,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_042",
+      "x": -0.15217254329181248,
+      "y": -1.288975660507209,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_043",
+      "x": -0.9729078542179186,
+      "y": -1.0201195082703918,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_044",
+      "x": 0.48782239662584076,
+      "y": 0.08568867528368596,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_045",
+      "x": -1.2709073420687373,
+      "y": -0.13907977240806496,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_046",
+      "x": 0.23712066320567043,
+      "y": 0.5512579013333052,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_047",
+      "x": -0.18532503386126503,
+      "y": -1.2118853661259832,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_048",
+      "x": 0.27144791683510566,
+      "y": -1.052672792915138,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "smurf_addr_049",
+      "x": 0.6056038906457684,
+      "y": 0.05352420462315799,
+      "risk_level": "LOW",
+      "risk_score": 0.245,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 0,
+      "illicit_score": 0.4576567877710569,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.24799644913914,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.09841711453369945,
+        "closeness_centrality": 0.40980810234541576
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "rapid_addr_000",
+      "x": 0.11642692281861326,
+      "y": 0.6395069025678675,
+      "risk_level": "MEDIUM",
+      "risk_score": 0.43121892444636145,
+      "transaction_count": 1,
+      "total_volume": 1.0,
+      "patterns": [],
+      "community_id": 1,
+      "illicit_score": 0.4751899408512033,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.42332797994060417,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.017498609273833256,
+        "closeness_centrality": 0.3174236168455821
+      },
+      "color": "#FFCC00",
+      "size": 10
+    },
+    {
+      "id": "rapid_addr_001",
+      "x": 0.36380398439341555,
+      "y": -1.111987245831645,
+      "risk_level": "MEDIUM",
+      "risk_score": 0.43121892444636145,
+      "transaction_count": 1,
+      "total_volume": 1.0,
+      "patterns": [],
+      "community_id": 1,
+      "illicit_score": 0.4751899408512033,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.42332797994060417,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.017498609273833256,
+        "closeness_centrality": 0.3174236168455821
+      },
+      "color": "#FFCC00",
+      "size": 10
+    },
+    {
+      "id": "rapid_addr_002",
+      "x": 0.17196212095898333,
+      "y": 0.5707572770604248,
+      "risk_level": "MEDIUM",
+      "risk_score": 0.43121892444636145,
+      "transaction_count": 1,
+      "total_volume": 1.0,
+      "patterns": [],
+      "community_id": 1,
+      "illicit_score": 0.4751899408512033,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.42332797994060417,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.017498609273833256,
+        "closeness_centrality": 0.3174236168455821
+      },
+      "color": "#FFCC00",
+      "size": 10
+    },
+    {
+      "id": "rapid_addr_003",
+      "x": -0.004964513528712143,
+      "y": -1.2611182662198568,
+      "risk_level": "MEDIUM",
+      "risk_score": 0.43121892444636145,
+      "transaction_count": 1,
+      "total_volume": 1.0,
+      "patterns": [],
+      "community_id": 1,
+      "illicit_score": 0.4751899408512033,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.42332797994060417,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.017498609273833256,
+        "closeness_centrality": 0.3174236168455821
+      },
+      "color": "#FFCC00",
+      "size": 10
+    },
+    {
+      "id": "rapid_addr_004",
+      "x": -0.7517666792508332,
+      "y": -0.8441103334689906,
+      "risk_level": "MEDIUM",
+      "risk_score": 0.43121892444636145,
+      "transaction_count": 1,
+      "total_volume": 1.0,
+      "patterns": [],
+      "community_id": 1,
+      "illicit_score": 0.4751899408512033,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.42332797994060417,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.017498609273833256,
+        "closeness_centrality": 0.3174236168455821
+      },
+      "color": "#FFCC00",
+      "size": 10
+    },
+    {
+      "id": "rapid_addr_005",
+      "x": 0.9642940495556793,
+      "y": -0.17342296539507204,
+      "risk_level": "MEDIUM",
+      "risk_score": 0.43121892444636145,
+      "transaction_count": 1,
+      "total_volume": 1.0,
+      "patterns": [],
+      "community_id": 1,
+      "illicit_score": 0.4751899408512033,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.42332797994060417,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.017498609273833256,
+        "closeness_centrality": 0.3174236168455821
+      },
+      "color": "#FFCC00",
+      "size": 10
+    },
+    {
+      "id": "rapid_addr_006",
+      "x": -0.6394934149184676,
+      "y": 0.4689010178792748,
+      "risk_level": "MEDIUM",
+      "risk_score": 0.43121892444636145,
+      "transaction_count": 1,
+      "total_volume": 1.0,
+      "patterns": [],
+      "community_id": 1,
+      "illicit_score": 0.4751899408512033,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.42332797994060417,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.017498609273833256,
+        "closeness_centrality": 0.3174236168455821
+      },
+      "color": "#FFCC00",
+      "size": 10
+    },
+    {
+      "id": "rapid_addr_007",
+      "x": -0.423143855374222,
+      "y": -1.2379558321395863,
+      "risk_level": "MEDIUM",
+      "risk_score": 0.43121892444636145,
+      "transaction_count": 1,
+      "total_volume": 1.0,
+      "patterns": [],
+      "community_id": 1,
+      "illicit_score": 0.4751899408512033,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.42332797994060417,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.017498609273833256,
+        "closeness_centrality": 0.3174236168455821
+      },
+      "color": "#FFCC00",
+      "size": 10
+    },
+    {
+      "id": "rapid_addr_008",
+      "x": -0.5974335075880898,
+      "y": -0.9050695028305649,
+      "risk_level": "MEDIUM",
+      "risk_score": 0.43121892444636145,
+      "transaction_count": 1,
+      "total_volume": 1.0,
+      "patterns": [],
+      "community_id": 1,
+      "illicit_score": 0.4751899408512033,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.42332797994060417,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.017498609273833256,
+        "closeness_centrality": 0.3174236168455821
+      },
+      "color": "#FFCC00",
+      "size": 10
+    },
+    {
+      "id": "rapid_addr_009",
+      "x": -0.925440702423077,
+      "y": -0.6224477668690984,
+      "risk_level": "MEDIUM",
+      "risk_score": 0.43121892444636145,
+      "transaction_count": 1,
+      "total_volume": 1.0,
+      "patterns": [],
+      "community_id": 1,
+      "illicit_score": 0.4751899408512033,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.42332797994060417,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 0.017498609273833256,
+        "closeness_centrality": 0.3174236168455821
+      },
+      "color": "#FFCC00",
+      "size": 10
+    },
+    {
+      "id": "round_addr_000",
+      "x": -0.5439010288986272,
+      "y": -0.6840482434393915,
+      "risk_level": "MEDIUM",
+      "risk_score": 0.43121892444636145,
+      "transaction_count": 1,
+      "total_volume": 1.0,
+      "patterns": [],
+      "community_id": 2,
+      "illicit_score": 0.4685163270045857,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.3565918414744279,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 1.0402468656360203e-16,
+        "closeness_centrality": 0.05384615384615385
+      },
+      "color": "#FFCC00",
+      "size": 10
+    },
+    {
+      "id": "round_addr_001",
+      "x": -0.03193449417544314,
+      "y": -1.202403901216686,
+      "risk_level": "LOW",
+      "risk_score": 0.3909568711756885,
+      "transaction_count": 1,
+      "total_volume": 10.0,
+      "patterns": [],
+      "community_id": 2,
+      "illicit_score": 0.4685163270045857,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "community_risk": 0.3565918414744279,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 1.0402468656360203e-16,
+        "closeness_centrality": 0.05384615384615385
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "round_addr_002",
+      "x": -0.6306307714995694,
+      "y": 0.09282469018261563,
+      "risk_level": "LOW",
+      "risk_score": 0.3231259952750455,
+      "transaction_count": 1,
+      "total_volume": 100.0,
+      "patterns": [],
+      "community_id": 2,
+      "illicit_score": 0.4685163270045857,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "round_amounts"
+      ],
+      "community_risk": 0.3565918414744279,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 1.0402468656360203e-16,
+        "closeness_centrality": 0.05384615384615385
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "round_addr_003",
+      "x": -0.14118790677517284,
+      "y": 0.5278605400335072,
+      "risk_level": "LOW",
+      "risk_score": 0.3652149333806531,
+      "transaction_count": 1,
+      "total_volume": 1000.0,
+      "patterns": [],
+      "community_id": 2,
+      "illicit_score": 0.4685163270045857,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "round_amounts"
+      ],
+      "community_risk": 0.3565918414744279,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 1.0402468656360203e-16,
+        "closeness_centrality": 0.05384615384615385
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "round_addr_004",
+      "x": 0.749068401260084,
+      "y": 0.5385171203598003,
+      "risk_level": "LOW",
+      "risk_score": 0.3692717119855099,
+      "transaction_count": 1,
+      "total_volume": 0.1,
+      "patterns": [],
+      "community_id": 2,
+      "illicit_score": 0.4685163270045857,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "round_amounts"
+      ],
+      "community_risk": 0.3565918414744279,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 1.0402468656360203e-16,
+        "closeness_centrality": 0.05384615384615385
+      },
+      "color": "#00CC00",
+      "size": 10
+    },
+    {
+      "id": "round_addr_005",
+      "x": -0.3908113231450408,
+      "y": 0.17790987520848028,
+      "risk_level": "LOW",
+      "risk_score": 0.185,
+      "transaction_count": 1,
+      "total_volume": 0.01,
+      "patterns": [],
+      "community_id": 2,
+      "illicit_score": 0.4685163270045857,
+      "suspicious_tx_count": 1,
+      "pattern_types": [
+        "round_amounts"
+      ],
+      "community_risk": 0.3565918414744279,
+      "transaction_anomalies": 0,
+      "centrality": {
+        "degree_centrality": 0.014285714285714285,
+        "betweenness_centrality": 0.0,
+        "eigenvector_centrality": 1.0402468656360203e-16,
+        "closeness_centrality": 0.05384615384615385
+      },
+      "color": "#00CC00",
+      "size": 10
+    }
+  ],
+  "edges": [
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+      "value": 31.0,
+      "count": 6,
+      "illicit_score": 0.56,
+      "suspicious_count": 6,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 1,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1.2
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_000",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_001",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_002",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_003",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_004",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_005",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_006",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_007",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_008",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_009",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_010",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_011",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_012",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_013",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_014",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_015",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_016",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_017",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_018",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_019",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_020",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_021",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_022",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_023",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_024",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_025",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_026",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_027",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_028",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_029",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_030",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_031",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_032",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_033",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_034",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_035",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_036",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_037",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_038",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_039",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_040",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_041",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_042",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_043",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_044",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_045",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_046",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_047",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_048",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "target": "smurf_addr_049",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 0,
+      "community_to": 0,
+      "same_community": false,
+      "color": "#FF6600",
+      "width": 1
+    },
+    {
+      "source": "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+      "target": "1NDyJtNTjmwk5xPNhjgAMu4HDHigtobu1s",
+      "value": 5.8999999999999995,
+      "count": 10,
+      "illicit_score": 0.6100000000000001,
+      "suspicious_count": 10,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 5,
+      "value_anomalies": 0,
+      "community_from": 1,
+      "community_to": 1,
+      "same_community": true,
+      "color": "#FF6600",
+      "width": 3.0
+    },
+    {
+      "source": "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+      "target": "rapid_addr_000",
+      "value": 1.0,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 1,
+      "community_to": 1,
+      "same_community": true,
+      "color": "#FF6600",
+      "width": 1.5
+    },
+    {
+      "source": "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+      "target": "rapid_addr_001",
+      "value": 1.0,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 1,
+      "community_to": 1,
+      "same_community": true,
+      "color": "#FF6600",
+      "width": 1.5
+    },
+    {
+      "source": "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+      "target": "rapid_addr_002",
+      "value": 1.0,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 1,
+      "community_to": 1,
+      "same_community": true,
+      "color": "#FF6600",
+      "width": 1.5
+    },
+    {
+      "source": "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+      "target": "rapid_addr_003",
+      "value": 1.0,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 1,
+      "community_to": 1,
+      "same_community": true,
+      "color": "#FF6600",
+      "width": 1.5
+    },
+    {
+      "source": "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+      "target": "rapid_addr_004",
+      "value": 1.0,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 1,
+      "community_to": 1,
+      "same_community": true,
+      "color": "#FF6600",
+      "width": 1.5
+    },
+    {
+      "source": "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+      "target": "rapid_addr_005",
+      "value": 1.0,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 1,
+      "community_to": 1,
+      "same_community": true,
+      "color": "#FF6600",
+      "width": 1.5
+    },
+    {
+      "source": "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+      "target": "rapid_addr_006",
+      "value": 1.0,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 1,
+      "community_to": 1,
+      "same_community": true,
+      "color": "#FF6600",
+      "width": 1.5
+    },
+    {
+      "source": "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+      "target": "rapid_addr_007",
+      "value": 1.0,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 1,
+      "community_to": 1,
+      "same_community": true,
+      "color": "#FF6600",
+      "width": 1.5
+    },
+    {
+      "source": "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+      "target": "rapid_addr_008",
+      "value": 1.0,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 1,
+      "community_to": 1,
+      "same_community": true,
+      "color": "#FF6600",
+      "width": 1.5
+    },
+    {
+      "source": "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+      "target": "rapid_addr_009",
+      "value": 1.0,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 1,
+      "community_to": 1,
+      "same_community": true,
+      "color": "#FF6600",
+      "width": 1.5
+    },
+    {
+      "source": "1FeexV6bAHb8ybZjqQMjJrcCrHGW9sb6uF",
+      "target": "1P5ZEDWTKTFGxQjZphgWPQUpe554WKDfHQ",
+      "value": 5.999999999999999,
+      "count": 10,
+      "illicit_score": 0.6100000000000001,
+      "suspicious_count": 10,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 5,
+      "value_anomalies": 0,
+      "community_from": 2,
+      "community_to": 2,
+      "same_community": true,
+      "color": "#FF6600",
+      "width": 3.0
+    },
+    {
+      "source": "1FeexV6bAHb8ybZjqQMjJrcCrHGW9sb6uF",
+      "target": "round_addr_000",
+      "value": 1.0,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 2,
+      "community_to": 2,
+      "same_community": true,
+      "color": "#FF6600",
+      "width": 1.5
+    },
+    {
+      "source": "1FeexV6bAHb8ybZjqQMjJrcCrHGW9sb6uF",
+      "target": "round_addr_001",
+      "value": 10.0,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "rapid_transfers"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 2,
+      "community_to": 2,
+      "same_community": true,
+      "color": "#FF6600",
+      "width": 1.5
+    },
+    {
+      "source": "1FeexV6bAHb8ybZjqQMjJrcCrHGW9sb6uF",
+      "target": "round_addr_002",
+      "value": 100.0,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "round_amounts"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 2,
+      "community_to": 2,
+      "same_community": true,
+      "color": "#FF6600",
+      "width": 1.5
+    },
+    {
+      "source": "1FeexV6bAHb8ybZjqQMjJrcCrHGW9sb6uF",
+      "target": "round_addr_003",
+      "value": 1000.0,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "round_amounts"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 2,
+      "community_to": 2,
+      "same_community": true,
+      "color": "#FF6600",
+      "width": 1.5
+    },
+    {
+      "source": "1FeexV6bAHb8ybZjqQMjJrcCrHGW9sb6uF",
+      "target": "round_addr_004",
+      "value": 0.1,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "round_amounts"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 2,
+      "community_to": 2,
+      "same_community": true,
+      "color": "#FF6600",
+      "width": 1.5
+    },
+    {
+      "source": "1FeexV6bAHb8ybZjqQMjJrcCrHGW9sb6uF",
+      "target": "round_addr_005",
+      "value": 0.01,
+      "count": 1,
+      "illicit_score": 0.56,
+      "suspicious_count": 1,
+      "pattern_types": [
+        "round_amounts"
+      ],
+      "transaction_anomalies": 0,
+      "value_anomalies": 0,
+      "community_from": 2,
+      "community_to": 2,
+      "same_community": true,
+      "color": "#FF6600",
+      "width": 1.5
+    }
+  ],
+  "analysis": {
+    "total_addresses": 71,
+    "total_transactions": 92,
+    "high_risk_addresses": [],
+    "risk_distribution": {
+      "LOW": 59,
+      "MEDIUM": 12
+    },
+    "pattern_counts": {
+      "rapid_transfers": 76,
+      "round_amounts": 1,
+      "smurfing": 2,
+      "layering": 1
+    },
+    "clusters": {
+      "0": [
+        "smurf_addr_000",
+        "smurf_addr_010",
+        "smurf_addr_008",
+        "smurf_addr_047",
+        "smurf_addr_030",
+        "smurf_addr_009",
+        "smurf_addr_015",
+        "smurf_addr_044",
+        "smurf_addr_022",
+        "smurf_addr_020",
+        "smurf_addr_021",
+        "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+        "smurf_addr_026",
+        "smurf_addr_039",
+        "smurf_addr_045",
+        "smurf_addr_006",
+        "smurf_addr_023",
+        "smurf_addr_032",
+        "smurf_addr_028",
+        "smurf_addr_013",
+        "smurf_addr_038",
+        "smurf_addr_041",
+        "smurf_addr_019",
+        "smurf_addr_034",
+        "smurf_addr_002",
+        "smurf_addr_037",
+        "smurf_addr_043",
+        "smurf_addr_003",
+        "smurf_addr_033",
+        "smurf_addr_005",
+        "smurf_addr_029",
+        "smurf_addr_018",
+        "smurf_addr_048",
+        "smurf_addr_036",
+        "smurf_addr_025",
+        "smurf_addr_007",
+        "smurf_addr_049",
+        "smurf_addr_004",
+        "smurf_addr_027",
+        "smurf_addr_016",
+        "smurf_addr_040",
+        "smurf_addr_024",
+        "smurf_addr_031",
+        "smurf_addr_035",
+        "smurf_addr_042",
+        "smurf_addr_046",
+        "smurf_addr_012",
+        "smurf_addr_001",
+        "smurf_addr_011",
+        "smurf_addr_017",
+        "smurf_addr_014"
+      ],
+      "1": [
+        "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+        "rapid_addr_007",
+        "rapid_addr_003",
+        "rapid_addr_009",
+        "1NDyJtNTjmwk5xPNhjgAMu4HDHigtobu1s",
+        "rapid_addr_004",
+        "rapid_addr_005",
+        "rapid_addr_006",
+        "rapid_addr_008",
+        "rapid_addr_000",
+        "rapid_addr_002",
+        "rapid_addr_001"
+      ],
+      "2": [
+        "round_addr_003",
+        "round_addr_004",
+        "1P5ZEDWTKTFGxQjZphgWPQUpe554WKDfHQ",
+        "round_addr_001",
+        "round_addr_002",
+        "round_addr_005",
+        "1FeexV6bAHb8ybZjqQMjJrcCrHGW9sb6uF",
+        "round_addr_000"
+      ]
+    },
+    "communities": {
+      "louvain": {
+        "smurf_addr_000": 0,
+        "smurf_addr_010": 0,
+        "smurf_addr_008": 0,
+        "smurf_addr_047": 0,
+        "smurf_addr_030": 0,
+        "smurf_addr_009": 0,
+        "smurf_addr_015": 0,
+        "smurf_addr_044": 0,
+        "smurf_addr_022": 0,
+        "smurf_addr_020": 0,
+        "smurf_addr_021": 0,
+        "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa": 0,
+        "smurf_addr_026": 0,
+        "smurf_addr_039": 0,
+        "smurf_addr_045": 0,
+        "smurf_addr_006": 0,
+        "smurf_addr_023": 0,
+        "smurf_addr_032": 0,
+        "smurf_addr_028": 0,
+        "smurf_addr_013": 0,
+        "smurf_addr_038": 0,
+        "smurf_addr_041": 0,
+        "smurf_addr_019": 0,
+        "smurf_addr_034": 0,
+        "smurf_addr_002": 0,
+        "smurf_addr_037": 0,
+        "smurf_addr_043": 0,
+        "smurf_addr_003": 0,
+        "smurf_addr_033": 0,
+        "smurf_addr_005": 0,
+        "smurf_addr_029": 0,
+        "smurf_addr_018": 0,
+        "smurf_addr_048": 0,
+        "smurf_addr_036": 0,
+        "smurf_addr_025": 0,
+        "smurf_addr_007": 0,
+        "smurf_addr_049": 0,
+        "smurf_addr_004": 0,
+        "smurf_addr_027": 0,
+        "smurf_addr_016": 0,
+        "smurf_addr_040": 0,
+        "smurf_addr_024": 0,
+        "smurf_addr_031": 0,
+        "smurf_addr_035": 0,
+        "smurf_addr_042": 0,
+        "smurf_addr_046": 0,
+        "smurf_addr_012": 0,
+        "smurf_addr_001": 0,
+        "smurf_addr_011": 0,
+        "smurf_addr_017": 0,
+        "smurf_addr_014": 0,
+        "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2": 1,
+        "rapid_addr_007": 1,
+        "rapid_addr_003": 1,
+        "rapid_addr_009": 1,
+        "1NDyJtNTjmwk5xPNhjgAMu4HDHigtobu1s": 1,
+        "rapid_addr_004": 1,
+        "rapid_addr_005": 1,
+        "rapid_addr_006": 1,
+        "rapid_addr_008": 1,
+        "rapid_addr_000": 1,
+        "rapid_addr_002": 1,
+        "rapid_addr_001": 1,
+        "round_addr_003": 2,
+        "round_addr_004": 2,
+        "1P5ZEDWTKTFGxQjZphgWPQUpe554WKDfHQ": 2,
+        "round_addr_001": 2,
+        "round_addr_002": 2,
+        "round_addr_005": 2,
+        "1FeexV6bAHb8ybZjqQMjJrcCrHGW9sb6uF": 2,
+        "round_addr_000": 2
+      },
+      "label_propagation": {
+        "smurf_addr_000": 0,
+        "smurf_addr_010": 0,
+        "smurf_addr_008": 0,
+        "smurf_addr_047": 0,
+        "smurf_addr_030": 0,
+        "smurf_addr_009": 0,
+        "smurf_addr_015": 0,
+        "smurf_addr_044": 0,
+        "smurf_addr_022": 0,
+        "smurf_addr_020": 0,
+        "smurf_addr_021": 0,
+        "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa": 0,
+        "smurf_addr_026": 0,
+        "smurf_addr_039": 0,
+        "smurf_addr_045": 0,
+        "smurf_addr_006": 0,
+        "smurf_addr_023": 0,
+        "smurf_addr_032": 0,
+        "smurf_addr_028": 0,
+        "smurf_addr_013": 0,
+        "smurf_addr_038": 0,
+        "smurf_addr_041": 0,
+        "smurf_addr_019": 0,
+        "smurf_addr_034": 0,
+        "smurf_addr_002": 0,
+        "smurf_addr_037": 0,
+        "smurf_addr_043": 0,
+        "smurf_addr_003": 0,
+        "smurf_addr_033": 0,
+        "smurf_addr_005": 0,
+        "smurf_addr_029": 0,
+        "smurf_addr_018": 0,
+        "smurf_addr_048": 0,
+        "smurf_addr_036": 0,
+        "smurf_addr_025": 0,
+        "smurf_addr_007": 0,
+        "smurf_addr_049": 0,
+        "smurf_addr_004": 0,
+        "smurf_addr_027": 0,
+        "smurf_addr_016": 0,
+        "smurf_addr_040": 0,
+        "smurf_addr_024": 0,
+        "smurf_addr_031": 0,
+        "smurf_addr_035": 0,
+        "smurf_addr_042": 0,
+        "smurf_addr_046": 0,
+        "smurf_addr_012": 0,
+        "smurf_addr_001": 0,
+        "smurf_addr_011": 0,
+        "smurf_addr_017": 0,
+        "smurf_addr_014": 0,
+        "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2": 1,
+        "rapid_addr_007": 1,
+        "rapid_addr_003": 1,
+        "rapid_addr_009": 1,
+        "1NDyJtNTjmwk5xPNhjgAMu4HDHigtobu1s": 1,
+        "rapid_addr_004": 1,
+        "rapid_addr_005": 1,
+        "rapid_addr_006": 1,
+        "rapid_addr_008": 1,
+        "rapid_addr_000": 1,
+        "rapid_addr_002": 1,
+        "rapid_addr_001": 1,
+        "round_addr_003": 2,
+        "round_addr_001": 2,
+        "round_addr_005": 2,
+        "round_addr_004": 2,
+        "1P5ZEDWTKTFGxQjZphgWPQUpe554WKDfHQ": 2,
+        "round_addr_002": 2,
+        "1FeexV6bAHb8ybZjqQMjJrcCrHGW9sb6uF": 2,
+        "round_addr_000": 2
+      },
+      "async_label_propagation": {
+        "smurf_addr_000": 0,
+        "smurf_addr_010": 0,
+        "smurf_addr_008": 0,
+        "smurf_addr_047": 0,
+        "smurf_addr_030": 0,
+        "smurf_addr_009": 0,
+        "smurf_addr_015": 0,
+        "smurf_addr_044": 0,
+        "smurf_addr_022": 0,
+        "smurf_addr_020": 0,
+        "smurf_addr_021": 0,
+        "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa": 0,
+        "smurf_addr_026": 0,
+        "smurf_addr_039": 0,
+        "smurf_addr_045": 0,
+        "smurf_addr_006": 0,
+        "smurf_addr_023": 0,
+        "smurf_addr_032": 0,
+        "smurf_addr_028": 0,
+        "smurf_addr_013": 0,
+        "smurf_addr_038": 0,
+        "smurf_addr_041": 0,
+        "smurf_addr_019": 0,
+        "smurf_addr_034": 0,
+        "smurf_addr_002": 0,
+        "smurf_addr_037": 0,
+        "smurf_addr_043": 0,
+        "smurf_addr_003": 0,
+        "smurf_addr_033": 0,
+        "smurf_addr_005": 0,
+        "smurf_addr_029": 0,
+        "smurf_addr_018": 0,
+        "smurf_addr_048": 0,
+        "smurf_addr_036": 0,
+        "smurf_addr_025": 0,
+        "smurf_addr_007": 0,
+        "smurf_addr_049": 0,
+        "smurf_addr_004": 0,
+        "smurf_addr_027": 0,
+        "smurf_addr_016": 0,
+        "smurf_addr_040": 0,
+        "smurf_addr_024": 0,
+        "smurf_addr_031": 0,
+        "smurf_addr_035": 0,
+        "smurf_addr_042": 0,
+        "smurf_addr_046": 0,
+        "smurf_addr_012": 0,
+        "smurf_addr_001": 0,
+        "smurf_addr_011": 0,
+        "smurf_addr_017": 0,
+        "smurf_addr_014": 0,
+        "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2": 1,
+        "rapid_addr_007": 1,
+        "rapid_addr_003": 1,
+        "rapid_addr_009": 1,
+        "1NDyJtNTjmwk5xPNhjgAMu4HDHigtobu1s": 1,
+        "rapid_addr_004": 1,
+        "rapid_addr_005": 1,
+        "rapid_addr_006": 1,
+        "rapid_addr_008": 1,
+        "rapid_addr_000": 1,
+        "rapid_addr_002": 1,
+        "rapid_addr_001": 1,
+        "round_addr_003": 2,
+        "round_addr_001": 2,
+        "round_addr_005": 2,
+        "round_addr_004": 2,
+        "1P5ZEDWTKTFGxQjZphgWPQUpe554WKDfHQ": 2,
+        "round_addr_002": 2,
+        "1FeexV6bAHb8ybZjqQMjJrcCrHGW9sb6uF": 2,
+        "round_addr_000": 2
+      },
+      "girvan_newman": {
+        "smurf_addr_000": 0,
+        "smurf_addr_010": 0,
+        "smurf_addr_008": 0,
+        "smurf_addr_047": 0,
+        "smurf_addr_030": 0,
+        "smurf_addr_009": 0,
+        "smurf_addr_015": 0,
+        "smurf_addr_044": 0,
+        "smurf_addr_022": 0,
+        "smurf_addr_020": 0,
+        "smurf_addr_021": 0,
+        "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa": 0,
+        "smurf_addr_026": 0,
+        "smurf_addr_039": 0,
+        "smurf_addr_045": 0,
+        "smurf_addr_006": 0,
+        "smurf_addr_023": 0,
+        "smurf_addr_032": 0,
+        "smurf_addr_028": 0,
+        "smurf_addr_013": 0,
+        "smurf_addr_038": 0,
+        "smurf_addr_041": 0,
+        "smurf_addr_019": 0,
+        "smurf_addr_034": 0,
+        "smurf_addr_002": 0,
+        "smurf_addr_037": 0,
+        "smurf_addr_043": 0,
+        "smurf_addr_003": 0,
+        "smurf_addr_033": 0,
+        "smurf_addr_005": 0,
+        "smurf_addr_029": 0,
+        "smurf_addr_018": 0,
+        "smurf_addr_048": 0,
+        "smurf_addr_036": 0,
+        "smurf_addr_025": 0,
+        "smurf_addr_007": 0,
+        "smurf_addr_049": 0,
+        "smurf_addr_004": 0,
+        "smurf_addr_027": 0,
+        "smurf_addr_016": 0,
+        "smurf_addr_040": 0,
+        "smurf_addr_024": 0,
+        "smurf_addr_031": 0,
+        "smurf_addr_035": 0,
+        "smurf_addr_042": 0,
+        "smurf_addr_046": 0,
+        "smurf_addr_012": 0,
+        "smurf_addr_001": 0,
+        "smurf_addr_011": 0,
+        "smurf_addr_017": 0,
+        "smurf_addr_014": 0,
+        "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2": 1,
+        "rapid_addr_007": 1,
+        "rapid_addr_003": 1,
+        "rapid_addr_009": 1,
+        "1NDyJtNTjmwk5xPNhjgAMu4HDHigtobu1s": 1,
+        "rapid_addr_004": 1,
+        "rapid_addr_005": 1,
+        "rapid_addr_006": 1,
+        "rapid_addr_008": 1,
+        "rapid_addr_000": 1,
+        "rapid_addr_002": 1,
+        "rapid_addr_001": 1,
+        "round_addr_003": 2,
+        "round_addr_001": 2,
+        "round_addr_005": 2,
+        "round_addr_004": 2,
+        "1P5ZEDWTKTFGxQjZphgWPQUpe554WKDfHQ": 2,
+        "round_addr_002": 2,
+        "1FeexV6bAHb8ybZjqQMjJrcCrHGW9sb6uF": 2,
+        "round_addr_000": 2
+      }
+    },
+    "community_statistics": {
+      "total_communities": 3,
+      "community_sizes": {
+        "total_communities": 3,
+        "avg_community_size": 23.666666666666668,
+        "largest_community_size": 51,
+        "smallest_community_size": 8
+      },
+      "community_risk_scores": {
+        "louvain": {
+          "0": {
+            "avg_risk": 0.24799644913914,
+            "max_risk": 0.39781890609614173,
+            "min_risk": 0.245,
+            "node_count": 51
+          },
+          "1": {
+            "avg_risk": 0.42332797994060417,
+            "max_risk": 0.43121892444636145,
+            "min_risk": 0.38334828678872757,
+            "node_count": 12
+          },
+          "2": {
+            "avg_risk": 0.3565918414744279,
+            "max_risk": 0.43121892444636145,
+            "min_risk": 0.185,
+            "node_count": 8
+          }
+        },
+        "label_propagation": {
+          "0": {
+            "avg_risk": 0.24799644913914,
+            "max_risk": 0.39781890609614173,
+            "min_risk": 0.245,
+            "node_count": 51
+          },
+          "1": {
+            "avg_risk": 0.42332797994060417,
+            "max_risk": 0.43121892444636145,
+            "min_risk": 0.38334828678872757,
+            "node_count": 12
+          },
+          "2": {
+            "avg_risk": 0.3565918414744279,
+            "max_risk": 0.43121892444636145,
+            "min_risk": 0.185,
+            "node_count": 8
+          }
+        },
+        "async_label_propagation": {
+          "0": {
+            "avg_risk": 0.24799644913914,
+            "max_risk": 0.39781890609614173,
+            "min_risk": 0.245,
+            "node_count": 51
+          },
+          "1": {
+            "avg_risk": 0.42332797994060417,
+            "max_risk": 0.43121892444636145,
+            "min_risk": 0.38334828678872757,
+            "node_count": 12
+          },
+          "2": {
+            "avg_risk": 0.3565918414744279,
+            "max_risk": 0.43121892444636145,
+            "min_risk": 0.185,
+            "node_count": 8
+          }
+        },
+        "girvan_newman": {
+          "0": {
+            "avg_risk": 0.24799644913914,
+            "max_risk": 0.39781890609614173,
+            "min_risk": 0.245,
+            "node_count": 51
+          },
+          "1": {
+            "avg_risk": 0.42332797994060417,
+            "max_risk": 0.43121892444636145,
+            "min_risk": 0.38334828678872757,
+            "node_count": 12
+          },
+          "2": {
+            "avg_risk": 0.3565918414744279,
+            "max_risk": 0.43121892444636145,
+            "min_risk": 0.185,
+            "node_count": 8
+          }
+        }
+      },
+      "algorithm_comparison": {
+        "louvain": {
+          "total_communities": 3,
+          "avg_community_size": 23.666666666666668,
+          "largest_community_size": 51,
+          "smallest_community_size": 8
+        },
+        "label_propagation": {
+          "total_communities": 3,
+          "avg_community_size": 23.666666666666668,
+          "largest_community_size": 51,
+          "smallest_community_size": 8
+        },
+        "async_label_propagation": {
+          "total_communities": 3,
+          "avg_community_size": 23.666666666666668,
+          "largest_community_size": 51,
+          "smallest_community_size": 8
+        },
+        "girvan_newman": {
+          "total_communities": 3,
+          "avg_community_size": 23.666666666666668,
+          "largest_community_size": 51,
+          "smallest_community_size": 8
+        }
+      }
+    },
+    "illicit_detection_summary": {
+      "high_illicit_nodes": 0,
+      "high_illicit_edges": 0,
+      "total_suspicious_transactions": 276,
+      "pattern_distribution": {
+        "rapid_transfers": 132,
+        "round_amounts": 9
+      },
+      "illicit_score_distribution": {
+        "nodes": {
+          "low": 0,
+          "medium": 71,
+          "high": 0
+        },
+        "edges": {
+          "low": 0,
+          "medium": 69,
+          "high": 0
+        }
+      },
+      "anomaly_counts": {
+        "transaction_anomalies": 102,
+        "value_anomalies": 0
+      }
+    },
+    "analysis_timestamp": "2025-09-09T11:10:23.536176"
+  },
+  "color_palette": {
+    "CRITICAL": "#FF0000",
+    "HIGH": "#FF6600",
+    "MEDIUM": "#FFCC00",
+    "LOW": "#00CC00",
+    "CLEAN": "#0066CC",
+    "EXCHANGE": "#9900CC",
+    "MIXING": "#FF00FF",
+    "PEEL_CHAIN": "#00FFFF",
+    "SMURFING": "#FFFF00",
+    "RAPID_TRANSFERS": "#FF9900",
+    "ROUND_AMOUNTS": "#99FF00",
+    "SUDDEN_BURSTS": "#FF0099",
+    "LAYERING": "#0099FF"
+  },
+  "pattern_colors": {
+    "mixing": "#FF00FF",
+    "peel_chain": "#00FFFF",
+    "smurfing": "#FFFF00",
+    "rapid_transfers": "#FF9900",
+    "round_amounts": "#99FF00",
+    "sudden_bursts": "#FF0099",
+    "layering": "#0099FF",
+    "chain_hopping": "#CC00CC"
+  }
+}

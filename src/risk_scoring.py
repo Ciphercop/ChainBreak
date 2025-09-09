@@ -3,7 +3,7 @@ Risk Scoring System for ChainBreak
 Calculates comprehensive risk scores for wallet addresses
 """
 
-from neo4j import GraphDatabase
+# from neo4j import GraphDatabase  # Removed Neo4j dependency
 import logging
 from typing import Dict, Any, Optional, List
 import math
@@ -15,9 +15,9 @@ logger = logging.getLogger(__name__)
 class RiskScorer:
     """Calculates comprehensive risk scores for addresses"""
     
-    def __init__(self, neo4j_driver, config: Dict[str, Any]):
+    def __init__(self, neo4j_driver=None, config: Dict[str, Any] = None):
         self.driver = neo4j_driver
-        self.config = config
+        self.config = config or {}
         self.risk_weights = config.get('risk_scoring', {})
         
     def calculate_address_risk_score(self, address: str) -> Dict[str, Any]:
@@ -82,8 +82,29 @@ class RiskScorer:
             logger.error(f"Error calculating risk score for {address}: {str(e)}")
             return self._get_default_risk_score(address)
     
+    def _get_default_address_info(self, address: str) -> Dict[str, Any]:
+        """Get default address info when no driver is available"""
+        return {
+            'address': address,
+            'outgoing_tx_count': 0,
+            'total_outgoing': 0.0,
+            'avg_outgoing': 0.0,
+            'first_outgoing': None,
+            'last_outgoing': None,
+            'incoming_tx_count': 0,
+            'total_incoming': 0.0,
+            'avg_incoming': 0.0,
+            'first_incoming': None,
+            'last_incoming': None,
+            'total_tx_count': 0,
+            'total_volume': 0.0
+        }
+    
     def _get_address_info(self, address: str) -> Optional[Dict[str, Any]]:
-        """Get comprehensive address information from Neo4j"""
+        """Get comprehensive address information"""
+        if not self.driver:
+            logger.info("RiskScorer: No Neo4j driver available, returning default info")
+            return self._get_default_address_info(address)
         query = """
         MATCH (a:Address {address: $address})
         OPTIONAL MATCH (a)-[:PARTICIPATED_IN]->(t:Transaction)

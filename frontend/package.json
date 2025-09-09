@@ -21,7 +21,11 @@
     "react-scripts": "5.0.1",
     "save-svg-as-png": "^1.4.17",
     "sigma": "^2.4.0",
-    "tailwind-merge": "^1.14.0"
+    "tailwind-merge": "^1.14.0",
+    "@mui/material": "^5.14.0",
+    "@mui/icons-material": "^5.14.0",
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0"
   },
   "scripts": {
     "start": "react-scripts start",
