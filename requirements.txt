@@ -57,9 +57,12 @@ cryptography
 pycryptodome
 
 # Illicit Transaction Detection Dependencies
-community  # python-louvain for community detection
+python-louvain  # Louvain community detection (import as `community`)
 plotly  # Interactive visualizations
 seaborn  # Statistical data visualization
+dash  # Web dashboard framework
+dash-bootstrap-components  # Bootstrap components for Dash
+kaleido  # Static image export for Plotly
 
 # Database drivers
 psycopg2-binary

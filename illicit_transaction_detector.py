@@ -1006,7 +1006,6 @@ class GraphVisualizer:
                 communities['louvain'] = louvain_communities
             except (ImportError, AttributeError):
                 # Fallback to networkx implementation
-                import networkx.algorithms.community as nx_community
                 louvain_communities = nx_community.greedy_modularity_communities(undirected_graph)
                 communities['louvain'] = {node: i for i, community in enumerate(louvain_communities) for node in community}
             
@@ -2158,7 +2157,6 @@ class IllicitTransactionDetector:
                 communities = community_louvain.best_partition(undirected_graph)
             except AttributeError:
                 # Fallback: use networkx's built-in community detection
-                import networkx.algorithms.community as nx_community
                 communities = nx_community.greedy_modularity_communities(undirected_graph)
                 # Convert to dict format
                 communities_dict = {}
